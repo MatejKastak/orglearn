@@ -2,6 +2,7 @@ import logging
 
 from orglearn.map.map_convertor import MapConvertor
 from orglearn.map.backend.backends import Backends
+from orglearn.anki.anki_convertor import AnkiConvertor
 
 import click
 
@@ -31,8 +32,7 @@ def anki(org_files, append, output):
         print('Append specified without output flag.')
         return
 
-    for f in org_files:
-        print('Hello, anki {}'.format(f))
+    c = AnkiConvertor(output, org_files, append=append)
 
 @main.command()
 @click.argument('org_files', type=click.Path(exists=True), nargs=-1)
