@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.eggs/
+eggs/
+dist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.mypy_cache/
+.dmypy.json
+dmypy.json
