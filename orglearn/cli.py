@@ -1,12 +1,19 @@
+import logging
+
 from orglearn.map.map_convertor import MapConvertor
 from orglearn.map.backend.backends import Backends
 
 import click
 
 @click.group(invoke_without_command=True)
+@click.option('-v', '--verbose', is_flag=True)
 @click.pass_context
-def main(ctx):
+def main(ctx, verbose):
     """Toolbox for learning from your org notes."""
+
+    if verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
     if ctx.invoked_subcommand is None:
         print('Hello, orglearn')
     else:
