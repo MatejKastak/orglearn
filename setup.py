@@ -29,6 +29,7 @@ setup_info = dict(
         'Topic :: Education',
     ],
     include_package_data=True,
+    # TODO(mato): Automatic requirements.txt parsing
     install_requires=[
         'click',
         'genanki',
