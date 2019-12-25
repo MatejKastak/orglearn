@@ -36,7 +36,6 @@ setup_info = dict(
     ],
     packages=find_packages(),
     entry_points={"console_scripts": ["orglearn = orglearn.cli:main"]},
-    zip_safe=False,
 )
 
 setup(**setup_info)
