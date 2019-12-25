@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 from setuptools import setup, find_packages
 
 long_description = '''Orglean provides tools for learning from org-mode notes. It can generate mind maps and anki decks.'''

@@ -1,7 +1,7 @@
 import logging
 
-from orglearn.map.map_convertor import MapConvertor
-from orglearn.map.backend.backends import Backends
+from orglearn.mind_map.map_convertor import MapConvertor
+from orglearn.mind_map.backend.backends import Backends
 from orglearn.anki.anki_convertor import AnkiConvertor
 
 import click

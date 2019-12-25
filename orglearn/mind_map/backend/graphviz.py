@@ -1,4 +1,4 @@
-from orglearn.map.backend.backend import Backend
+from orglearn.mind_map.backend.backend import Backend
 
 class Graphviz(Backend):
 
