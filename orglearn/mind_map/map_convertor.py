@@ -1,13 +1,21 @@
+import os
+
+import orgparse
+
 class MapConvertor():
 
     def __init__(self, o_file, f_list, backend):
-        self.o_file = o_file
-        self.f_list = f_list
-        self.backend = backend
+
+        # TODO(mato): This method is duplicate
+        # Try to deteremine output file if none was specified
+        if o_file is None:
+            root, ext = os.path.splitext(os.path.basename(f_list[0]))
+            o_file = root + backend.get_ext()
 
         # Parse the org files into 1 tree
-        tree = 'asd'
-        for f in f_list:
-            print(f)
+        # TODO(mato): For now we are expecting only one file, make it more generic
+        for f in f_list[:1]:
+            tree = orgparse.load(f)
 
-        # self.backend.convert(tree, self.o_file)
+            with open(o_file, 'w') as o_stream:
+                backend.convert(tree, o_stream)
