@@ -6,5 +6,14 @@ import abc
 class Backend(abc.ABC):
 
     @abc.abstractmethod
-    def convert(self, tree, file_path, **kwargs):
+    def convert(self, tree, o_stream, **kwargs):
+        """Convert org tree with backend.
+        Keyword Arguments:
+        tree     -- Org tree input.
+        o_stream -- Write output into the stream.
+        **kwargs -- Optional arguments for backend.
+        """
         ...
+
+    def get_ext(self) -> str:
+        raise NotImplemented()
