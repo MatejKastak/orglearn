@@ -26,6 +26,7 @@ TEST_MODEL = genanki.Model(
               '{{BField}}',
     }
   ],
+  css='.card {text-align: left;}'
 )
 
 latex_eq = re.compile(r'\$(.*)\$')
