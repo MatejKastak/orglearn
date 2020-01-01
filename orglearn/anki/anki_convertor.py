@@ -63,10 +63,10 @@ class AnkiConvertor():
     def _get_cards(self, tree_level, output_list):
         for c in tree_level.children:
             # TODO(mato): We can maybe include also cards that have children but
-            # also have body text
+            # also have body text, those will have a list of all children titles?
             # TODO(mato): Node title should contain some info about ancestor nodes
             # TODO(mato): This node will also contain the child node titles
-            if not c.children:
+            if c.body or not c.children:
                 card_body = latex_eq.sub(r'[$]\1[/$]', c.body)
                 output_list.append(genanki.Note(model=TEST_MODEL, fields=[c.heading, card_body]))
             self._get_cards(c, output_list)
