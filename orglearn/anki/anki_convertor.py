@@ -68,6 +68,6 @@ class AnkiConvertor():
             # TODO(mato): Node title should contain some info about ancestor nodes
             # TODO(mato): This node will also contain the child node titles
             if c.body or not c.children:
-                card_body = latex_eq.sub(r'[$]\1[/$]', c.body)
+                card_body = latex_eq.sub(r'[$]\1[/$]', c.body).replace('\n', '<br />')
                 output_list.append(genanki.Note(model=TEST_MODEL, fields=[c.heading, card_body]))
             self._get_cards(c, output_list)
