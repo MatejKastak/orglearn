@@ -2,6 +2,13 @@
 
 from setuptools import setup, find_packages
 
+def requirements(filepath):
+    res = []
+    with open(filepath, 'r') as requirements:
+        for line in requirements.readlines():
+            res.append(line.strip())
+    return res
+
 long_description = '''Orglean provides tools for learning from org-mode notes. It can generate mind maps and anki decks.'''
 
 setup_info = dict(
@@ -29,12 +36,7 @@ setup_info = dict(
         'Topic :: Education',
     ],
     include_package_data=True,
-    # TODO(mato): Automatic requirements.txt parsing
-    install_requires=[
-        'click',
-        'genanki',
-        'orgparse',
-    ],
+    install_requires=requirements('requirements.txt'),
     packages=find_packages(),
     entry_points={"console_scripts": ["orglearn = orglearn.cli:main"]},
 )
