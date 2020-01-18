@@ -5,29 +5,46 @@ import graphviz
 class Graphviz(Backend):
 
     def convert(self, tree, stream):
-        import pdb; pdb.set_trace()
         # TODO: Maybe create heading from file name
         self.dot = graphviz.Digraph(comment='asd')
+        # self.dot.attr(size='6,6')
+        # self.dot.attr('graph', size='8.3,11.7!')
+        # self.dot.attr('graph', size='11.7,8.3!')
+        # self.dot.attr('graph', page='8.3,11.7!')
+        # self.dot.attr('graph', page='11.7,8.3!')
+        # self.dot.attr('graph', ratio='auto')
+        # self.dot.attr('graph', ratio='0.5')
+        tree.root.heading = 'FILENAME?'
         self._process_node(tree.root)
 
-    def anki(self, anki_out_path, cards):
-        my_deck = genanki.Deck(random.randrange(1 << 30, 1 << 31), anki_out_path)
+        # TODO(mato): Add option to split on highest level into files
 
-        for c in cards:
-            my_deck.add_note(c)
+        # TODO(mato): Cannot take stream
+        self.dot.render('test-mmap.gv', view=True)
 
-        genanki.Package(my_deck).write_to_file(anki_out_path)
 
-    def _process_node(self, tree_level):
-        for c in tree_level.children:
+    def _process_node(self, tree_node):
+
+        # TODO(mato): What to do with a node body
+
+        # First construct the current node
+        self.dot.node(tree_node.heading, tree_node.heading)
+
+        # If node has a parrent, create a link to it
+        if tree_node.parent is not None:
+            self.dot.edge(tree_node.parent.heading, tree_node.heading) #, constraint='false')
+
+        # Process all children of this node
+        for c in tree_node.children:
+            # TODO(mato): Are these TODOs even relevant?
+            #
             # TODO(mato): We can maybe include also cards that have children but
             # also have body text
             # TODO(mato): Node heading should contain some info about ancestor nodes
             # TODO(mato): This node will also contain the child node headings
-            if not c.children:
-                # output_list.append(genanki.Note(model=TEST_MODEL, fields=[c.heading, c.body]))
-                # TODO(mato): Create better identification
-                self.dot.node(c.heading, c.heading)
+            # output_list.append(genanki.Note(model=TEST_MODEL, fields=[c.heading, c.body]))
+            # TODO(mato): Create better identification
+            # TODO(mato): Node name cannot contain ':'
 
             self._process_node(c)
 
