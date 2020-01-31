@@ -25,14 +25,15 @@ def main(ctx, verbose):
 @click.argument('org_files', type=click.Path(exists=True), required=True, nargs=-1)
 @click.option('-a', '--append', is_flag=True, help='Append cards to existing apki deck. Requires specifing -o option.')
 @click.option('-o', '--output', type=click.Path(resolve_path=True, dir_okay=False, writable=True), help='Conversion output file.')
-def anki(org_files, append, output):
+@click.option('-m', '--mobile', is_flag=True, help='Generate cards suitable for mobile anki (do not process latex).')
+def anki(org_files, append, output, mobile):
     """Convert org files ORG_FILES into an anki deck."""
     if append and not output:
         # TODO(mato): What do you think about using -a <file> instead of -a and -o combination?
         print('Append specified without output flag.')
         return
 
-    c = AnkiConvertor(output, org_files, append=append)
+    c = AnkiConvertor(output, org_files, append=append, mobile=mobile)
 
 @main.command()
 @click.argument('org_files', type=click.Path(exists=True), nargs=-1)
