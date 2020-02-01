@@ -67,7 +67,7 @@ def anki(org_files, append, output, mobile, itl):
 @click.option(
     "-b",
     "--backend",
-    "backend_param",
+    "backend_name",
     default=Backends.get_default_backend(),
     type=click.Choice(Backends.get_backends()),
     help="Backend used for conversion. Usually represents output format.",
@@ -78,7 +78,14 @@ def anki(org_files, append, output, mobile, itl):
     type=click.Path(resolve_path=True, dir_okay=False, writable=True),
     help="Conversion output file.",
 )
-def map(org_files, backend_param, output):
+@click.option(
+    "-i",
+    "--ignore-tag",
+    "itl",
+    multiple=True,
+    help="Ignore specified set of tags (can be specified multiple times).",
+)
+def map(org_files, backend_name, output, itl):
     """Convert org files ORG_FILES into a mind map."""
-    backend = Backends.make(backend_param)
+    backend = Backends.make(backend_name, ignore_tags_list=itl)
     conv = MapConvertor(output, org_files, backend)

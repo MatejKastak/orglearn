@@ -4,7 +4,10 @@ import graphviz
 
 
 class Graphviz(Backend):
-    def convert(self, tree, stream):
+    def __init__(self, *args, **kwargs):
+        self.ignore_tags = set(kwargs.get("ignore_tags_list", []))
+
+    def convert(self, tree, stream, **kwargs):
         # TODO: Maybe create heading from file name
         # self.dot = graphviz.Digraph(comment='asd')
         self.dot = graphviz.Digraph(comment="asd")
@@ -48,8 +51,8 @@ class Graphviz(Backend):
             # TODO(mato): This node will also contain the child node headings
             # TODO(mato): Create better identification
             # TODO(mato): Node name cannot contain ':'
-
-            self._process_node(c)
+            if not self.ignore_tags.intersection(c.tags):
+                self._process_node(c)
 
     def get_ext(self):
         return ".png"

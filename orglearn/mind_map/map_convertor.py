@@ -4,7 +4,7 @@ import orgparse
 
 
 class MapConvertor:
-    def __init__(self, o_file, f_list, backend):
+    def __init__(self, o_file, f_list, backend, **kwargs):
 
         # TODO(mato): This method is duplicate
         # Try to deteremine output file if none was specified
@@ -18,4 +18,4 @@ class MapConvertor:
             tree = orgparse.load(f)
 
             with open(o_file, "w") as o_stream:
-                backend.convert(tree, o_stream)
+                backend.convert(tree, o_stream, **kwargs)
