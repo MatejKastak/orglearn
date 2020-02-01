@@ -24,7 +24,12 @@ class Graphviz(Backend):
         # self.dot.attr('graph', ratio='0.2')
         # self.dot.attr('graph', K='100')
         # self.dot.attr('graph', maxiter='100')
-        tree.root.heading = "FILENAME?"
+        try:
+            # Try to set the center node text to a org file title comment
+            tree.root.heading = tree._special_comments["TITLE"][0]
+        except KeyError:
+            tree.root.heading = "MAP"
+
         self._process_node(tree.root)
 
         # TODO(mato): Add option to split on highest level into files
