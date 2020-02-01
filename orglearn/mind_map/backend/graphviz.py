@@ -45,12 +45,7 @@ class Graphviz(Backend):
         # Process all children of this node
         for c in tree_node.children:
             # TODO(mato): Are these TODOs even relevant?
-            #
-            # TODO(mato): We can maybe include also cards that have children but
-            # also have body text
-            # TODO(mato): Node heading should contain some info about ancestor nodes
             # TODO(mato): This node will also contain the child node headings
-            # output_list.append(genanki.Note(model=TEST_MODEL, fields=[c.heading, c.body]))
             # TODO(mato): Create better identification
             # TODO(mato): Node name cannot contain ':'
 

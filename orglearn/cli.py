@@ -43,14 +43,23 @@ def main(ctx, verbose):
     is_flag=True,
     help="Generate cards suitable for mobile anki (do not process latex).",
 )
-def anki(org_files, append, output, mobile):
+@click.option(
+    "-i",
+    "--ignore-tag",
+    "itl",
+    multiple=True,
+    help="Ignore specified set of tags (can be specified multiple times).",
+)
+def anki(org_files, append, output, mobile, itl):
     """Convert org files ORG_FILES into an anki deck."""
     if append and not output:
         # TODO(mato): What do you think about using -a <file> instead of -a and -o combination?
         print("Append specified without output flag.")
         return
 
-    c = AnkiConvertor(output, org_files, append=append, mobile=mobile)
+    c = AnkiConvertor(
+        output, org_files, append=append, mobile=mobile, ignore_tags_list=itl
+    )
 
 
 @main.command()

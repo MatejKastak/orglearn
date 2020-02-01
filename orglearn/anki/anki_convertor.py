@@ -34,6 +34,7 @@ class AnkiConvertor:
         self.f_list = f_list
 
         self.mobile = kwargs.get("mobile", False)
+        self.ignore_tags = set(kwargs.get("ignore_tags_list", []))
 
         # Try to deteremine output file if none was specified
         if o_file is None:
@@ -61,20 +62,23 @@ class AnkiConvertor:
         for c in tree_level.children:
             # TODO(mato): We can maybe include also cards that have children but
             # also have body text, those will have a list of all children titles?
-            # TODO(mato): Node title should contain some info about ancestor nodes
             # TODO(mato): This node will also contain the child node titles
-            if c.body or not c.children:
-                card_body = c.body
-                card_body = card_body.replace("\n", "<br />")
-                if not self.mobile:
-                    card_body = latex_eq.sub(r"[$]\1[/$]", card_body)
-                    card_body = image_struct.sub(r'<img src="\1">', card_body)
-
-                try:
-                    card_title = "{} -> {}".format(c.parent.heading, c.heading)
-                except AttributeError:
-                    card_title = "{}".format(c.heading)
-                output_list.append(
-                    genanki.Note(model=TEST_MODEL, fields=[card_title, card_body])
-                )
+            if not self.ignore_tags.intersection(c.tags):
+                self._process_node(c, output_list)
             self._get_cards(c, output_list)
+
+    def _process_node(self, node, output_list):
+        if node.body or not node.children:
+            card_body = node.body
+            card_body = card_body.replace("\n", "<br />")
+            if not self.mobile:
+                card_body = latex_eq.sub(r"[$]\1[/$]", card_body)
+                card_body = image_struct.sub(r'<img src="\1">', card_body)
+
+            try:
+                card_title = "{} -> {}".format(node.parent.heading, node.heading)
+            except AttributeError:
+                card_title = "{}".format(node.heading)
+            output_list.append(
+                genanki.Note(model=TEST_MODEL, fields=[card_title, card_body])
+            )
