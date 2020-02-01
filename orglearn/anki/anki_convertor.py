@@ -7,41 +7,33 @@ import orgparse
 import genanki
 
 TEST_MODEL = genanki.Model(
-  random.randrange(1 << 30, 1 << 31),
-  'foomodel',
-  fields=[
-    {
-      'name': 'AField',
-    },
-    {
-      'name': 'BField',
-    },
-  ],
-  templates=[
-    {
-      'name': 'card1',
-      'qfmt': '{{AField}}',
-      'afmt': '{{FrontSide}}'
-              '<hr id="answer">'
-              '{{BField}}',
-    }
-  ],
-  css='.card {text-align: left;}'
+    random.randrange(1 << 30, 1 << 31),
+    "foomodel",
+    fields=[{"name": "AField",}, {"name": "BField",},],
+    templates=[
+        {
+            "name": "card1",
+            "qfmt": "{{AField}}",
+            "afmt": "{{FrontSide}}" '<hr id="answer">' "{{BField}}",
+        }
+    ],
+    css=".card {text-align: left;}",
 )
 
-latex_eq = re.compile(r'\$(.*)\$')
-image_struct = re.compile(r'\[\[(.*)\]\]')
+latex_eq = re.compile(r"\$(.*)\$")
+image_struct = re.compile(r"\[\[(.*)\]\]")
 
-class AnkiConvertor():
 
-    ANKI_EXT = '.apkg'
+class AnkiConvertor:
+
+    ANKI_EXT = ".apkg"
 
     def __init__(self, o_file, f_list, **kwargs):
         # TODO(mato): Implement append
         self.o_file = o_file
         self.f_list = f_list
 
-        self.mobile = kwargs.get('mobile', False)
+        self.mobile = kwargs.get("mobile", False)
 
         # Try to deteremine output file if none was specified
         if o_file is None:
@@ -73,14 +65,16 @@ class AnkiConvertor():
             # TODO(mato): This node will also contain the child node titles
             if c.body or not c.children:
                 card_body = c.body
-                card_body = card_body.replace('\n', '<br />')
+                card_body = card_body.replace("\n", "<br />")
                 if not self.mobile:
-                    card_body = latex_eq.sub(r'[$]\1[/$]', card_body)
+                    card_body = latex_eq.sub(r"[$]\1[/$]", card_body)
                     card_body = image_struct.sub(r'<img src="\1">', card_body)
 
                 try:
-                    card_title = '{} -> {}'.format(c.parent.heading, c.heading)
+                    card_title = "{} -> {}".format(c.parent.heading, c.heading)
                 except AttributeError:
-                    card_title = '{}'.format(c.heading)
-                output_list.append(genanki.Note(model=TEST_MODEL, fields=[card_title, card_body]))
+                    card_title = "{}".format(c.heading)
+                output_list.append(
+                    genanki.Note(model=TEST_MODEL, fields=[card_title, card_body])
+                )
             self._get_cards(c, output_list)

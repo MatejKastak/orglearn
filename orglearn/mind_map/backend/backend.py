@@ -4,7 +4,6 @@ import abc
 # it will have similiar interface, but it will output to the specified
 # stream
 class Backend(abc.ABC):
-
     @abc.abstractmethod
     def convert(self, tree, o_stream, **kwargs):
         """Convert org tree with backend.

@@ -30,3 +30,14 @@ orglearn anki file1.org # Convert org file into anki deck ./file1.apkg
 orglearn anki file1.org file2.org # Convert multiple files into single deck
 ```
 
+# Contributing
+
+Contribution guidelines TBD.
+
+We are using the black for the source code formatting. To use it automatically
+preprare pre-commit hooks with the following command.
+
+```sh
+pre-commit install # Install the pre-commit hooks
+```
+

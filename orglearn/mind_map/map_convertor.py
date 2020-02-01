@@ -2,8 +2,8 @@ import os
 
 import orgparse
 
-class MapConvertor():
 
+class MapConvertor:
     def __init__(self, o_file, f_list, backend):
 
         # TODO(mato): This method is duplicate
@@ -17,5 +17,5 @@ class MapConvertor():
         for f in f_list[:1]:
             tree = orgparse.load(f)
 
-            with open(o_file, 'w') as o_stream:
+            with open(o_file, "w") as o_stream:
                 backend.convert(tree, o_stream)
