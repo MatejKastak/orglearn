@@ -38,16 +38,17 @@ class Graphviz(Backend):
         self.dot.render("test-mmap.gv", view=True)
 
     def _process_node(self, tree_node):
+        """Create a map node from tree node and proccess its children."""
 
         # TODO(mato): What to do with a node body
 
         # First construct the current node
-        self.dot.node(tree_node.heading, tree_node.heading)
+        self.dot.node(self._create_id(tree_node), tree_node.heading)
 
         # If node has a parrent, create a link to it
         if tree_node.parent is not None:
             self.dot.edge(
-                tree_node.parent.heading, tree_node.heading
+                self._create_id(tree_node.parent), self._create_id(tree_node)
             )  # , constraint='false')
 
         # Process all children of this node
@@ -58,6 +59,23 @@ class Graphviz(Backend):
             # TODO(mato): Node name cannot contain ':'
             if not self.ignore_tags.intersection(c.tags):
                 self._process_node(c)
+
+    def _create_id(self, node):
+        """Hash the node to create identifier to reference nodes."""
+        try:
+            return (
+                self._normalize_heading(node.parent.heading)
+                + "%"
+                + str(node.level)
+                + "%"
+                + self._normalize_heading(node.heading)
+            )
+        except AttributeError:
+            return str(node.level) + "%" + self._normalize_heading(node.heading)
+
+    def _normalize_heading(self, heading):
+        """Normalize heading for dot format. Essentialy remove all ':' from headings."""
+        return heading.replace(":", "")
 
     def get_ext(self):
         return ".png"
