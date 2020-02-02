@@ -37,8 +37,9 @@ class AnkiConvertor:
         self.ignore_tags = set(kwargs.get("ignore_tags_list", []))
 
         # Try to deteremine output file if none was specified
+        # TODO(mato): This functionality can also be abstracted higher
         if o_file is None:
-            root, ext = os.path.splitext(os.path.basename(f_list[0]))
+            root, ext = os.path.splitext(f_list[0])
             o_file = root + AnkiConvertor.ANKI_EXT
 
         # Parse the org files into 1 tree

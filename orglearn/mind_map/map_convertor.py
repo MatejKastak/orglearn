@@ -9,7 +9,7 @@ class MapConvertor:
         # TODO(mato): This method is duplicate
         # Try to deteremine output file if none was specified
         if o_file is None:
-            root, ext = os.path.splitext(os.path.basename(f_list[0]))
+            root, ext = os.path.splitext(f_list[0])
             o_file = root + backend.get_ext()
 
         # Parse the org files into 1 tree
