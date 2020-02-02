@@ -45,13 +45,21 @@ class AnkiConvertor:
         # Parse the org files into 1 tree
         cards = []
         for f in f_list:
-            cur_file = orgparse.load(f)
-            self._get_cards(cur_file, cards)
+            # TODO(mato): Don't allways set this as a new value instead we need
+            # to mechanism to merge all trees into one big tree
+            self.cur_file = orgparse.load(f)
+            self._get_cards(self.cur_file, cards)
 
         self.anki(o_file, cards)
 
     def anki(self, anki_out_path, cards):
-        # TODO(mato): Name can be determined from _special_comments TITLE
+        # TODO(mato): This method can be abstracted as staticmethod
+        try:
+            # Try to set the deck name to a org file title comment
+            deck_name = self.cur_file._special_comments["TITLE"][0]
+        except KeyError:
+            deck_name = anki_out_path
+
         my_deck = genanki.Deck(random.randrange(1 << 30, 1 << 31), anki_out_path)
 
         for c in cards:
