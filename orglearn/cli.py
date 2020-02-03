@@ -1,10 +1,12 @@
 import logging
+import os
 
 from orglearn.mind_map.map_convertor import MapConvertor
 from orglearn.mind_map.backend.backends import Backends
 from orglearn.anki.anki_convertor import AnkiConvertor
 
 import click
+import pypandoc
 
 
 @click.group(invoke_without_command=True)
@@ -101,3 +103,13 @@ def map(org_files, backend_name, output, itl):
     """Convert org files ORG_FILES into a mind map."""
     backend = Backends.make(backend_name, ignore_tags_list=itl)
     conv = MapConvertor(output, org_files, backend)
+
+
+@main.command()
+@click.argument("org_files", type=click.Path(exists=True), required=True, nargs=-1)
+def pdf(org_files):
+    """Convert org files ORG_FILES into a pdf file."""
+
+    for f in org_files:
+        of = os.path.splitext(f)[0] + ".pdf"
+        pypandoc.convert_file(f, "pdf", outputfile=of, extra_args=["--toc"])

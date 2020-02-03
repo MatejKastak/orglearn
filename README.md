@@ -13,6 +13,15 @@ front-side of the card and the body is the back-side of the card.
 
 TBD
 
+# PDF
+
+Orglearn is able to create pdf from your notes. You can achieve similar results
+converting org files to pdf using emacs. But we think that using `pandoc`
+results in better looking pdfs.
+
+To be able to convert org files to pdf you need to have `pandoc` installed on
+your system.
+
 # Instalation
 
 ```sh
