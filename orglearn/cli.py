@@ -45,12 +45,19 @@ def main(ctx, verbose):
 )
 @click.option(
     "-i",
+    "--ignore-shallow-tag",
+    "istl",
+    multiple=True,
+    help="Ignore specified set of shallow tags (can be specified multiple times).",
+)
+@click.option(
+    "-I",
     "--ignore-tag",
     "itl",
     multiple=True,
     help="Ignore specified set of tags (can be specified multiple times).",
 )
-def anki(org_files, append, output, mobile, itl):
+def anki(org_files, append, output, mobile, istl, itl):
     """Convert org files ORG_FILES into an anki deck."""
     if append and not output:
         # TODO(mato): What do you think about using -a <file> instead of -a and -o combination?
@@ -58,7 +65,12 @@ def anki(org_files, append, output, mobile, itl):
         return
 
     c = AnkiConvertor(
-        output, org_files, append=append, mobile=mobile, ignore_tags_list=itl
+        output,
+        org_files,
+        append=append,
+        mobile=mobile,
+        ignore_shallow_tags_list=istl,
+        ignore_tags_list=itl,
     )
 
 

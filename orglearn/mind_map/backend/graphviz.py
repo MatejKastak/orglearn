@@ -5,6 +5,7 @@ import graphviz
 
 class Graphviz(Backend):
     def __init__(self, *args, **kwargs):
+        self.ignore_shallow_tags = set(kwargs.get("ignore_shallow_tags_list", []))
         self.ignore_tags = set(kwargs.get("ignore_tags_list", []))
 
     def convert(self, tree, stream, **kwargs):
@@ -53,10 +54,6 @@ class Graphviz(Backend):
 
         # Process all children of this node
         for c in tree_node.children:
-            # TODO(mato): Are these TODOs even relevant?
-            # TODO(mato): This node will also contain the child node headings
-            # TODO(mato): Create better identification
-            # TODO(mato): Node name cannot contain ':'
             if not self.ignore_tags.intersection(c.tags):
                 self._process_node(c)
 

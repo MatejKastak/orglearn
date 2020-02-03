@@ -35,6 +35,7 @@ class AnkiConvertor:
 
         self.mobile = kwargs.get("mobile", False)
         self.ignore_tags = set(kwargs.get("ignore_tags_list", []))
+        self.ignore_shallow_tags = set(kwargs.get("ignore_shallow_tags_list", []))
 
         # Try to deteremine output file if none was specified
         # TODO(mato): This functionality can also be abstracted higher
@@ -72,7 +73,9 @@ class AnkiConvertor:
             # TODO(mato): We can maybe include also cards that have children but
             # also have body text, those will have a list of all children titles?
             # TODO(mato): This node will also contain the child node titles
-            if not self.ignore_tags.intersection(c.tags):
+            if not self.ignore_tags.intersection(
+                c.tags
+            ) and not self.ignore_shallow_tags.intersection(c.shallow_tags):
                 self._process_node(c, output_list)
             self._get_cards(c, output_list)
 
