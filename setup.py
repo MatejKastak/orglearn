@@ -16,7 +16,7 @@ with open("README.md", "r") as fh:
 
 setup_info = dict(
     name="orglearn",
-    version="0.0.1",  # TODO(mato): Better way to handle versions
+    version="1.0.0",  # TODO: Better way to handle versions
     author="Matej Kastak",
     author_email="matej.kastak@gmail.com",
     description="Tool to learn from your org-mode notes",
