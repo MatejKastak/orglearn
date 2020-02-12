@@ -1,3 +1,5 @@
+[![GitHub](https://img.shields.io/github/license/MatejKastak/orglearn?style=flat-square)](https://github.com/MatejKastak/orglearn/blob/master/LICENSE)
+
 # Orglearn
 
 Orglean provides tools for learning from org-mode notes. It can generate mind
@@ -43,8 +45,9 @@ orglearn anki file1.org file2.org # Convert multiple files into single deck
 
 Contribution guidelines TBD.
 
-We are using the black for the source code formatting. To use it automatically
-preprare pre-commit hooks with the following command.
+We are using the [black](https://github.com/psf/black) for the source code
+formatting. To use it automatically preprare pre-commit hooks with the following
+command.
 
 ```sh
 pre-commit install # Install the pre-commit hooks

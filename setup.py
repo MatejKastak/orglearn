@@ -11,7 +11,8 @@ def requirements(filepath):
     return res
 
 
-long_description = """Orglean provides tools for learning from org-mode notes. It can generate mind maps and anki decks."""
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup_info = dict(
     name="orglearn",
@@ -20,6 +21,7 @@ setup_info = dict(
     author_email="matej.kastak@gmail.com",
     description="Tool to learn from your org-mode notes",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     license="MIT",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -39,6 +41,7 @@ setup_info = dict(
     ],
     include_package_data=True,
     install_requires=requirements("requirements.txt"),
+    url="https://github.com/MatejKastak/orglearn",
     packages=find_packages(),
     entry_points={"console_scripts": ["orglearn = orglearn.cli:main"]},
 )
