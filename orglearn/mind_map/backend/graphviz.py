@@ -36,7 +36,7 @@ class Graphviz(Backend):
         # TODO(mato): Add option to split on highest level into files
 
         # TODO(mato): Cannot take stream
-        self.dot.render("test-mmap.gv", view=True)
+        self.dot.render(stream.name)
 
     def _process_node(self, tree_node):
         """Create a map node from tree node and proccess its children."""
@@ -75,4 +75,7 @@ class Graphviz(Backend):
         return heading.replace(":", "")
 
     def get_ext(self):
-        return ".png"
+        # Graphviz automatically appends the '.pdf'
+        # And we don't want to colide with `pdf` command so prepend the '-map'
+        # This results in: "<filename>-map.pdf"
+        return "-map"
