@@ -1,10 +1,10 @@
-import logging
 import os
 import random
 import re
+import typing
 
-import orgparse
 import genanki
+import orgparse
 
 TEST_MODEL = genanki.Model(
     random.randrange(1 << 30, 1 << 31),
@@ -33,18 +33,18 @@ class AnkiConvertor:
         self.o_file = o_file
         self.f_list = f_list
 
-        self.mobile = kwargs.get("mobile", False)
-        self.ignore_tags = set(kwargs.get("ignore_tags_list", []))
-        self.ignore_shallow_tags = set(kwargs.get("ignore_shallow_tags_list", []))
+        self.mobile = kwargs.pop("mobile", False)
+        self.ignore_tags = set(kwargs.pop("ignore_tags_list", []))
+        self.ignore_shallow_tags = set(kwargs.pop("ignore_shallow_tags_list", []))
 
         # Try to deteremine output file if none was specified
         # TODO(mato): This functionality can also be abstracted higher
         if o_file is None:
-            root, ext = os.path.splitext(f_list[0])
+            root, _ = os.path.splitext(f_list[0])
             o_file = root + AnkiConvertor.ANKI_EXT
 
         # Parse the org files into 1 tree
-        cards = []
+        cards: typing.List[genanki.Note] = []
         for f in f_list:
             # TODO(mato): Don't allways set this as a new value instead we need
             # to mechanism to merge all trees into one big tree
@@ -68,29 +68,63 @@ class AnkiConvertor:
 
         genanki.Package(my_deck).write_to_file(anki_out_path)
 
-    def _get_cards(self, tree_level, output_list):
-        for c in tree_level.children:
+    def _get_cards(self, tree_level, output_list: typing.List[genanki.Note]):
+        for child in tree_level.children:
             # TODO(mato): We can maybe include also cards that have children but
             # also have body text, those will have a list of all children titles?
             # TODO(mato): This node will also contain the child node titles
             if not self.ignore_tags.intersection(
-                c.tags
-            ) and not self.ignore_shallow_tags.intersection(c.shallow_tags):
-                self._process_node(c, output_list)
-            self._get_cards(c, output_list)
+                child.tags
+            ) and not self.ignore_shallow_tags.intersection(child.shallow_tags):
+                self._process_node(child, output_list)
+            self._get_cards(child, output_list)
 
-    def _process_node(self, node, output_list):
+    @staticmethod
+    def _get_card_title(node: orgparse.node.OrgNode, depth: int = 1) -> str:
+        """Construct the node title with the optional parent node headings."""
+        res = node.heading
+        for _ in range(depth):
+            try:
+                node = node.parent
+                res = "{} -> {}".format(node.heading, res)
+            except AttributeError:
+                return res
+        return res
+
+    def _process_node(
+        self, node: orgparse.node.OrgNode, output_list: typing.List[genanki.Note]
+    ) -> None:
+        """Process a single node and append a new Note."""
+        generate = False
+        card_body = ""
+        depth = 1
         if node.body or not node.children:
+            generate = True
             card_body = node.body
-            card_body = card_body.replace("\n", "<br />")
+
+            # Ignore processing if the output is for mobile
             if not self.mobile:
                 card_body = latex_eq.sub(r"[$]\1[/$]", card_body)
                 card_body = image_struct.sub(r'<img src="\1">', card_body)
 
+            # Check if the parent is list, if so increase the card_title depth
             try:
-                card_title = "{} -> {}".format(node.parent.heading, node.heading)
+                # TODO: Walk the list and find all parent lists
+                if "anki_list" in node.parent.shallow_tags:
+                    depth = 2
             except AttributeError:
-                card_title = "{}".format(node.heading)
-            output_list.append(
-                genanki.Note(model=TEST_MODEL, fields=[card_title, card_body])
-            )
+                pass
+
+        if "anki_list" in node.shallow_tags:
+            generate = True
+
+            if card_body:
+                card_body += "\n"
+
+            for child in node.children:
+                card_body += "- {}\n".format(child.heading)
+
+        card_body = card_body.replace("\n", "<br />")
+        card_title = self._get_card_title(node, depth)
+        if generate:
+            output_list.append(genanki.Note(model=TEST_MODEL, fields=[card_title, card_body]))
