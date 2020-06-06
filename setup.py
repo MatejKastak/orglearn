@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+import typing
+
+from setuptools import find_packages, setup
 
 
-def requirements(filepath):
+def requirements(filepath: str) -> typing.List[str]:
+    """Read requirements from a filepath."""
     res = []
-    with open(filepath, "r") as requirements:
-        for line in requirements.readlines():
+    with open(filepath, "r") as requirements_file:
+        for line in requirements_file.readlines():
             res.append(line.strip())
     return res
 
@@ -14,7 +17,7 @@ def requirements(filepath):
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setup_info = dict(
+setup(
     name="orglearn",
     version="1.0.1",  # TODO: Better way to handle versions
     author="Matej Kastak",
@@ -40,10 +43,8 @@ setup_info = dict(
         "Topic :: Education",
     ],
     include_package_data=True,
-    install_requires=requirements("requirements.txt"),
+    install_requires=requirements('requirements.txt'),
     url="https://github.com/MatejKastak/orglearn",
     packages=find_packages(),
     entry_points={"console_scripts": ["orglearn = orglearn.cli:main"]},
 )
-
-setup(**setup_info)
