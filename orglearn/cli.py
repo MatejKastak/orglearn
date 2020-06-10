@@ -6,6 +6,7 @@ import click
 
 import pypandoc
 from orglearn.anki.anki_convertor import AnkiConvertor
+from orglearn.anki.node_convertor import AnkiConvertMode
 from orglearn.mind_map.backend.backends import Backends
 from orglearn.mind_map.map_convertor import MapConvertor
 
@@ -47,6 +48,14 @@ def main(ctx: click.Context, verbose: bool) -> None:
     help="Generate cards suitable for mobile anki (do not process latex).",
 )
 @click.option(
+    "-c",
+    "--conversion-mode",
+    type=click.Choice(AnkiConvertMode.__members__.keys(), case_sensitive=False),
+    help="Anki conversion mode.",
+    default=None,
+    show_default=True,
+)
+@click.option(
     "-i",
     "--ignore-shallow-tag",
     "istl",
@@ -61,24 +70,34 @@ def main(ctx: click.Context, verbose: bool) -> None:
     help="Ignore specified set of tags (can be specified multiple times).",
 )
 def anki(
-    org_files: typing.Tuple[str], append: bool, output: str, mobile: bool, istl: bool, itl: bool
+    org_files: typing.Tuple[str],
+    append: bool,
+    output: str,
+    mobile: bool,
+    conversion_mode: typing.Optional[str],
+    istl: bool,
+    itl: bool,
 ) -> None:
     """Convert org files ORG_FILES into an anki deck."""
     if append and not output:
         print("Append specified without output flag.")
         return
 
+    # TODO: Create click.Choice for enums and return optional enum instead of this conversion
+    _conversion_mode = AnkiConvertMode[conversion_mode.upper()] if conversion_mode else None
+
     c = AnkiConvertor(
         output,
         org_files,
         append=append,
         mobile=mobile,
+        convert_mode=_conversion_mode,
         ignore_shallow_tags_list=istl,
         ignore_tags_list=itl,
     )
 
 
-@main.command('map')
+@main.command("map")
 @click.argument("org_files", type=click.Path(exists=True), nargs=-1)
 @click.option(
     "-b",
