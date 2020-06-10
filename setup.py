@@ -19,7 +19,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="orglearn",
-    version="1.0.2",  # TODO: Better way to handle versions
+    version="1.0.3",  # TODO: Better way to handle versions
     author="Matej Kastak",
     author_email="matej.kastak@gmail.com",
     description="Tool to learn from your org-mode notes",
@@ -43,7 +43,7 @@ setup(
         "Topic :: Education",
     ],
     include_package_data=True,
-    install_requires=requirements('requirements.txt'),
+    install_requires=requirements("requirements.txt"),
     url="https://github.com/MatejKastak/orglearn",
     packages=find_packages(),
     entry_points={"console_scripts": ["orglearn = orglearn.cli:main"]},
