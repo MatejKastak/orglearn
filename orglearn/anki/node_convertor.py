@@ -22,7 +22,7 @@ class AnkiConvertMode(enum.Enum):
 class NodeConvertor:
     """Convert orglearn node to anki Note."""
 
-    NORMAL_MODEL = genanki.Model(
+    MODEL_NORMAL = genanki.Model(
         # TODO: Abstract the id
         random.randrange(1 << 30, 1 << 31),
         "Orglearn - normal",
@@ -37,15 +37,15 @@ class NodeConvertor:
         css=".card {text-align: left;}",
     )
 
-    CODE_MODEL = genanki.Model(
+    MODEL_CODE = genanki.Model(
         # TODO: Abstract the id
         random.randrange(1 << 30, 1 << 31),
         "Orglearn - code",
-        fields=[{"name", "Task"}, {"name": "Assignment"}, {"name": "Solution"}],
+        fields=[{"name": "Task"}, {"name": "Assignment"}, {"name": "Solution"}],
         templates=[
             {
                 "name": "card1",
-                "qfmt": "{{Task}}<\br>{{Assignment}}",
+                "qfmt": "{{Task}}" "</br>" "{{Assignment}}",
                 "afmt": "{{FrontSide}}" '<hr id="answer">' "{{Solution}}",
             }
         ],
@@ -115,7 +115,7 @@ class NodeConvertor:
         card_body = card_body.replace("\n", "<br />")
         card_title = self._get_card_title(node, depth)
         if generate:
-            return genanki.Note(model=self.NORMAL_MODEL, fields=[card_title, card_body])
+            return genanki.Note(model=self.MODEL_NORMAL, fields=[card_title, card_body])
 
         return None
 
@@ -123,4 +123,46 @@ class NodeConvertor:
         return None
 
     def _convert_code(self, node: orgparse.node.OrgNode) -> typing.Optional[genanki.Note]:
+        generate = False
+        depth = 1
+        assignment = ""
+        solution = node.body
+        if node.body or not node.children:
+            generate = True
+
+            # Split the node body into two parts beaking on the first 2 empty lines
+            body_split = node.body.split("\n\n\n", 1)
+            if len(body_split) == 2:
+                assignment, solution = body_split
+
+            # Ignore processing if the output is for mobile
+            if not self._mobile:
+                assignment = latex_eq.sub(r"[$]\1[/$]", assignment)
+                assignment = image_struct.sub(r'<img src="\1">', assignment)
+                solution = latex_eq.sub(r"[$]\1[/$]", solution)
+                solution = image_struct.sub(r'<img src="\1">', solution)
+
+            # Check if the parent is list, if so increase the card_title depth
+            try:
+                # TODO: Walk the list and find all parent lists
+                if "anki_list" in node.parent.shallow_tags:
+                    depth = 2
+            except AttributeError:
+                pass
+
+        if "anki_list" in node.shallow_tags:
+            generate = True
+
+            if solution:
+                solution += "\n"
+
+            for child in node.children:
+                solution += "- {}\n".format(child.heading)
+
+        assignment = assignment.replace("\n", "<br />")
+        solution = solution.replace("\n", "<br />")
+        card_title = self._get_card_title(node, depth)
+        if generate:
+            return genanki.Note(model=self.MODEL_CODE, fields=[card_title, assignment, solution])
+
         return None
