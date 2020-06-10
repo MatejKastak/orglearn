@@ -1,18 +1,19 @@
 import logging
 import os
-
-from orglearn.mind_map.map_convertor import MapConvertor
-from orglearn.mind_map.backend.backends import Backends
-from orglearn.anki.anki_convertor import AnkiConvertor
+import typing
 
 import click
+
 import pypandoc
+from orglearn.anki.anki_convertor import AnkiConvertor
+from orglearn.mind_map.backend.backends import Backends
+from orglearn.mind_map.map_convertor import MapConvertor
 
 
 @click.group(invoke_without_command=True)
 @click.option("-v", "--verbose", is_flag=True, help="Increase verbosity of orglearn.")
 @click.pass_context
-def main(ctx, verbose):
+def main(ctx: click.Context, verbose: bool) -> None:
     """Toolbox for learning from your org notes."""
 
     if verbose:
@@ -59,10 +60,11 @@ def main(ctx, verbose):
     multiple=True,
     help="Ignore specified set of tags (can be specified multiple times).",
 )
-def anki(org_files, append, output, mobile, istl, itl):
+def anki(
+    org_files: typing.Tuple[str], append: bool, output: str, mobile: bool, istl: bool, itl: bool
+) -> None:
     """Convert org files ORG_FILES into an anki deck."""
     if append and not output:
-        # TODO(mato): What do you think about using -a <file> instead of -a and -o combination?
         print("Append specified without output flag.")
         return
 
@@ -76,7 +78,7 @@ def anki(org_files, append, output, mobile, istl, itl):
     )
 
 
-@main.command()
+@main.command('map')
 @click.argument("org_files", type=click.Path(exists=True), nargs=-1)
 @click.option(
     "-b",
@@ -99,7 +101,7 @@ def anki(org_files, append, output, mobile, istl, itl):
     multiple=True,
     help="Ignore specified set of tags (can be specified multiple times).",
 )
-def map(org_files, backend_name, output, itl):
+def map_cmd(org_files: typing.Tuple[str], backend_name: str, output: str, itl: bool) -> None:
     """Convert org files ORG_FILES into a mind map."""
     backend = Backends.make(backend_name, ignore_tags_list=itl)
     conv = MapConvertor(output, org_files, backend)
@@ -107,8 +109,10 @@ def map(org_files, backend_name, output, itl):
 
 @main.command()
 @click.argument("org_files", type=click.Path(exists=True), required=True, nargs=-1)
-def pdf(org_files):
+def pdf(org_files: typing.Tuple[str]) -> None:
     """Convert org files ORG_FILES into a pdf file."""
+
+    # TODO: Test if pandoc is installed, if not report an error
 
     for f in org_files:
         of = os.path.splitext(f)[0] + ".pdf"
