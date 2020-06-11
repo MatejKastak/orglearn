@@ -135,4 +135,14 @@ def pdf(org_files: typing.Tuple[str]) -> None:
 
     for f in org_files:
         of = os.path.splitext(f)[0] + ".pdf"
-        pypandoc.convert_file(f, "pdf", outputfile=of, extra_args=["--toc", "-N"])
+        pypandoc.convert_file(
+            f,
+            "pdf",
+            outputfile=of,
+            extra_args=[
+                "--toc",
+                "-N",
+                "-V",
+                "geometry:top=2.5cm, bottom=2.5cm, left=4cm, right=4cm",
+            ],
+        )
