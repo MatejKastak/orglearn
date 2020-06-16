@@ -137,6 +137,7 @@ def pdf(org_files: typing.Tuple[str]) -> None:
     with tempfile.NamedTemporaryFile(suffix=".tex") as fp:
         fp.write(
             rb"""   \usepackage{enumitem}
+    \usepackage{dsfont}
     \setlistdepth{9}
 
     \setlist[itemize,1]{label=$\bullet$}
