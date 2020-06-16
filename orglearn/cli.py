@@ -1,5 +1,6 @@
 import logging
 import os
+import tempfile
 import typing
 
 import click
@@ -133,16 +134,49 @@ def pdf(org_files: typing.Tuple[str]) -> None:
 
     # TODO: Test if pandoc is installed, if not report an error
 
-    for f in org_files:
-        of = os.path.splitext(f)[0] + ".pdf"
-        pypandoc.convert_file(
-            f,
-            "pdf",
-            outputfile=of,
-            extra_args=[
-                "--toc",
-                "-N",
-                "-V",
-                "geometry:top=2.5cm, bottom=2.5cm, left=4cm, right=4cm",
-            ],
+    with tempfile.NamedTemporaryFile(suffix=".tex") as fp:
+        fp.write(
+            rb"""   \usepackage{enumitem}
+    \setlistdepth{9}
+
+    \setlist[itemize,1]{label=$\bullet$}
+    \setlist[itemize,2]{label=$\bullet$}
+    \setlist[itemize,3]{label=$\bullet$}
+    \setlist[itemize,4]{label=$\bullet$}
+    \setlist[itemize,5]{label=$\bullet$}
+    \setlist[itemize,6]{label=$\bullet$}
+    \setlist[itemize,7]{label=$\bullet$}
+    \setlist[itemize,8]{label=$\bullet$}
+    \setlist[itemize,9]{label=$\bullet$}
+    \renewlist{itemize}{itemize}{9}
+
+    \setlist[enumerate,1]{label=$\arabic*.$}
+    \setlist[enumerate,2]{label=$\alph*.$}
+    \setlist[enumerate,3]{label=$\roman*.$}
+    \setlist[enumerate,4]{label=$\arabic*.$}
+    \setlist[enumerate,5]{label=$\alpha*$}
+    \setlist[enumerate,6]{label=$\roman*.$}
+    \setlist[enumerate,7]{label=$\arabic*.$}
+    \setlist[enumerate,8]{label=$\alph*.$}
+    \setlist[enumerate,9]{label=$\roman*.$}
+    \renewlist{enumerate}{enumerate}{9}
+"""
         )
+
+        fp.flush()
+
+        for f in org_files:
+            of = os.path.splitext(f)[0] + ".pdf"
+            pypandoc.convert_file(
+                f,
+                "pdf",
+                outputfile=of,
+                extra_args=[
+                    "--toc",
+                    "-N",
+                    "-V",
+                    "geometry:top=2.5cm, bottom=2.5cm, left=4cm, right=4cm",
+                    "-H",
+                    fp.name,
+                ],
+            )
