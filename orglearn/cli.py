@@ -175,6 +175,8 @@ def pdf(org_files: typing.Tuple[str], heading_level: int) -> None:
 
         fp.flush()
 
+        old_working_directory = os.getcwd()
+
         for file_path in org_files:
 
             input_content = ""
@@ -186,7 +188,11 @@ def pdf(org_files: typing.Tuple[str], heading_level: int) -> None:
             with open(file_path, "r") as input_file:
                 input_content += input_file.read()
 
-            of = os.path.splitext(file_path)[0] + ".pdf"
+            # Change the compilation context to the file directory
+            # this is needed in order to include images from the paths relative to org file
+            os.chdir(os.path.dirname(os.path.abspath(file_path)))
+
+            of = os.path.splitext(os.path.basename(file_path))[0] + ".pdf"
             pypandoc.convert_text(
                 input_content,
                 "pdf",
@@ -201,3 +207,6 @@ def pdf(org_files: typing.Tuple[str], heading_level: int) -> None:
                     fp.name,
                 ],
             )
+
+        # Restore the old working directory
+        os.chdir(old_working_directory)
