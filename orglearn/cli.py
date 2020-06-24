@@ -129,8 +129,17 @@ def map_cmd(org_files: typing.Tuple[str], backend_name: str, output: str, itl: b
 
 @main.command()
 @click.argument("org_files", type=click.Path(exists=True), required=True, nargs=-1)
-def pdf(org_files: typing.Tuple[str]) -> None:
-    """Convert org files ORG_FILES into a pdf file."""
+@click.option(
+    "-H",
+    "--heading-level",
+    "heading_level",
+    default=4,
+    show_default=True,
+    type=click.IntRange(1, 8),
+    help="Set the heading level of the output pdf file.",
+)
+def pdf(org_files: typing.Tuple[str], heading_level: int) -> None:
+    """Convert ORG_FILES into pdf files."""
 
     # TODO: Test if pandoc is installed, if not report an error
 
@@ -166,11 +175,21 @@ def pdf(org_files: typing.Tuple[str]) -> None:
 
         fp.flush()
 
-        for f in org_files:
-            of = os.path.splitext(f)[0] + ".pdf"
-            pypandoc.convert_file(
-                f,
+        for file_path in org_files:
+
+            input_content = ""
+
+            if heading_level:
+                input_content += "#+OPTIONS: H:{}\n".format(heading_level)
+
+            with open(file_path, "r") as input_file:
+                input_content += input_file.read()
+
+            of = os.path.splitext(file_path)[0] + ".pdf"
+            pypandoc.convert_text(
+                input_content,
                 "pdf",
+                "org",
                 outputfile=of,
                 extra_args=[
                     "--toc",
