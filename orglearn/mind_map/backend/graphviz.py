@@ -1,12 +1,13 @@
-from orglearn.mind_map.backend.backend import Backend
-
+import colour
 import graphviz
+from orglearn.mind_map.backend.backend import Backend
 
 
 class Graphviz(Backend):
     def __init__(self, *args, **kwargs):
         self.ignore_shallow_tags = set(kwargs.get("ignore_shallow_tags_list", []))
         self.ignore_tags = set(kwargs.get("ignore_tags_list", []))
+        self.base_color = colour.Color("green")
 
     def convert(self, tree, stream, **kwargs):
         # TODO: Maybe create heading from file name
@@ -19,9 +20,14 @@ class Graphviz(Backend):
         # self.dot.attr('graph', page='11.7,8.3!')
         # self.dot.attr('graph', ratio='auto')
         self.dot.attr("graph", ratio="scale")
+        self.dot.attr("graph", splines="spline")
+        self.dot.attr("node", shape="box")
         self.dot.attr("graph", overlap="false")
+        self.dot.attr("edge", arrowhead="vee", arrowtail="vee", arrowsize="0.75")
         # self.dot.attr('graph', mindist='5.0')
-        self.dot.engine = "circo"
+        # self.dot.engine = "neato"
+        # self.dot.engine = "circo"
+        self.dot.engine = "fdp"
         # self.dot.attr('graph', ratio='0.2')
         # self.dot.attr('graph', K='100')
         # self.dot.attr('graph', maxiter='100')
@@ -31,11 +37,17 @@ class Graphviz(Backend):
         except KeyError:
             tree.root.heading = "MAP"
 
+        # Generate color gradient based on the depht of the org tree
+        max_depth = 1
+        for child in tree:
+            max_depth = max(max_depth, child.level + 1)
+        self.colors = list(self.base_color.range_to(colour.Color("white"), max_depth))
+
         self._process_node(tree.root)
 
-        # TODO(mato): Add option to split on highest level into files
+        # TODO: Add option to split on highest level into files
 
-        # TODO(mato): Cannot take stream
+        # TODO: Cannot take stream
         self.dot.render(stream.name)
 
     def _process_node(self, tree_node):
@@ -44,6 +56,27 @@ class Graphviz(Backend):
         # TODO(mato): What to do with a node body
 
         # First construct the current node
+        # if tree_node.level == 0:
+        #     self.dot.node(self._create_id(tree_node), tree_node.heading, shape='star', color='black')
+        # elif tree_node.level == 1:
+        #     self.dot.node(self._create_id(tree_node), tree_node.heading, shape='doublecircle')
+        # else:
+        # if tree_node.level == 0:
+        #     self.dot.attr('node', shape='diamond', style='filled', color='lightgray')
+        # else:
+        #     self.dot.attr('node', shape='ellipse', color='black')
+        # height: 0.5
+        # width: 0.75
+        scale = 0.80 ** tree_node.level
+        height = str(1 * scale)
+        width = str(2 * scale)
+        self.dot.attr(
+            "node",
+            height=height,
+            width=width,
+            style="filled",
+            fillcolor=self.colors[tree_node.level].get_hex_l(),
+        )
         self.dot.node(self._create_id(tree_node), tree_node.heading)
 
         # If node has a parrent, create a link to it
@@ -59,6 +92,7 @@ class Graphviz(Backend):
 
     def _create_id(self, node):
         """Hash the node to create identifier to reference nodes."""
+        # TODO: We should double escape the '\' characters
         try:
             return (
                 self._normalize_heading(node.parent.heading)
