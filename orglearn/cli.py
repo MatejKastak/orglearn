@@ -10,7 +10,7 @@ from orglearn.anki.anki_convertor import AnkiConvertor
 from orglearn.anki.node_convertor import AnkiConvertMode
 from orglearn.mind_map.backend.backends import Backends
 from orglearn.mind_map.map_convertor import MapConvertor
-from orglearn.preprocessor import preprocess_string
+from orglearn.preprocessor import Preprocessor
 
 
 @click.group(invoke_without_command=True)
@@ -186,8 +186,7 @@ def pdf(org_files: typing.Tuple[str], heading_level: int) -> None:
             if heading_level:
                 input_content += "#+OPTIONS: H:{}\n".format(heading_level)
 
-            with open(file_path, "r") as input_file:
-                input_content += preprocess_string(input_file.read())
+            input_content += Preprocessor().preprocess_file(file_path)
 
             # Change the compilation context to the file directory
             # this is needed in order to include images from the paths relative to org file

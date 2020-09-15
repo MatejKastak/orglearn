@@ -1,53 +1,82 @@
 import re
 import orgparse
+import typing
+import os
 
 
-def _include_node(node: orgparse.node.OrgNode) -> str:
-    res = ""
+class Preprocessor:
+    REGEXP_IMAGE = re.compile(r"^\s*\[\[(.*)\]\]$")
+    REGEXP_LINK = re.compile(r"^\*+\s+\[OL\](.*)$")
 
-    # Get the heading line, this is a bit hackish, maybe a better way
-    # is to construct the heading based on the public attributes
-    res += node._lines[0]
-    res += "\n"
-    res += node.body
-    res += "\n"
+    def __init__(self) -> None:
+        self.source_file: typing.Optional[str] = None
 
-    for child in node.children:
-        res += _include_node(child)
+    def preprocess_file(self, file_path: str) -> str:
+        with open(file_path, "r") as input_file:
+            self.current_file = file_path
+            return self.preprocess_string(input_file.read())
 
-    return res
+    def preprocess_string(self, file_source: str) -> str:
+        res = ""
 
+        for line in file_source.splitlines():
+            m = self.REGEXP_LINK.search(line)
 
-def preprocess_string(file_source: str) -> str:
-    res = ""
+            if m:
+                parts = m.group(1).split("@")
+                include_title, include_path = parts[0], parts[1]
 
-    for line in file_source.splitlines():
-        m = re.search(r"^\*+\s+\[OL\](.*)$", line)
+                res += line
 
-        if m:
-            include_title, include_path = m.group(1).split("@")
+                include_org_file = orgparse.load(include_path)
+                self.current_file = include_path
 
-            res += line
+                for something in include_org_file:
+                    try:
+                        if something.heading == include_title:
+                            res += self._process_body(something._lines[1:])
+                            res += "\n"
+                            for child in something.children:
+                                res += self._include_node(child)
+                    except AttributeError:
+                        # Root node does not have heading attribute
+                        pass
+            else:
+                res += line
+                res += "\n"
 
-            include_org_file = orgparse.load(include_path)
+        return res
 
-            for something in include_org_file:
-                try:
-                    if something.heading == include_title:
-                        res += something.body
-                        res += "\n"
-                        for child in something.children:
-                            res += _include_node(child)
-                except AttributeError:
-                    # Root node does not have heading attribute
-                    pass
-        else:
-            res += line
-            res += "\n"
+    def _process_body(self, body: typing.List[str]) -> str:
+        res = ""
+        for line in body:
+            m = self.REGEXP_IMAGE.search(line)
 
-    return res
+            if m:
+                processed_file_base_dir = os.path.dirname(self.current_file)
+                res_image_path = os.path.join(processed_file_base_dir, m.group(1))
+                res_image_path = os.path.normpath(res_image_path)
 
+                res += "[[./{}]]".format(res_image_path)
+                res += "\n"
+            else:
+                res += line
+                res += "\n"
 
-def preprocess_file(file_path: str) -> str:
-    with open(file_path, "r") as input_file:
-        return preprocess_string(input_file.read())
+        return res
+
+    def _include_node(self, node: orgparse.node.OrgNode) -> str:
+        res = ""
+
+        # Get the heading line, this is a bit hackish, maybe a better way
+        # is to construct the heading based on the public attributes
+        res += node._lines[0]
+        res += "\n"
+        res += self._process_body(node._lines[1:])
+        # res += node.body
+        res += "\n"
+
+        for child in node.children:
+            res += self._include_node(child)
+
+        return res
