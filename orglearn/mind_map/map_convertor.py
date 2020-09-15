@@ -1,6 +1,7 @@
 import os
 
 import orgparse
+from orglearn.preprocessor import Preprocessor
 
 
 class MapConvertor:
@@ -15,7 +16,8 @@ class MapConvertor:
         # Parse the org files into 1 tree
         # TODO(mato): For now we are expecting only one file, make it more generic
         for f in f_list[:1]:
-            tree = orgparse.load(f)
+            source = Preprocessor().preprocess_file(f)
+            tree = orgparse.loads(source)
 
             with open(o_file, "w") as o_stream:
                 backend.convert(tree, o_stream, **kwargs)
