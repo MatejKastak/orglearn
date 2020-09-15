@@ -27,6 +27,7 @@ class Preprocessor:
                 include_title, include_path = parts[0], parts[1]
 
                 res += line
+                res += "\n"
 
                 include_org_file = orgparse.load(include_path)
                 self.current_file = include_path
