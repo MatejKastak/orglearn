@@ -224,3 +224,13 @@ def pdf(org_files: typing.Tuple[str], heading_level: int, exit_after_preprocessi
 
         # Restore the old working directory
         os.chdir(old_working_directory)
+
+
+@main.command()
+@click.argument("org_file", type=click.Path(exists=True), required=True, nargs=1)
+def preprocess(org_file: str) -> None:
+    """Preprocess ORG_FILES and print them to stdout.
+
+    NOTE: This is used for debugging purposes.
+    """
+    print(Preprocessor().preprocess_file(org_file))
