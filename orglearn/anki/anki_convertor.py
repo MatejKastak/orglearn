@@ -5,6 +5,7 @@ import typing
 import genanki
 import orgparse
 from orglearn.anki.node_convertor import AnkiConvertMode, NodeConvertor
+from orglearn.preprocessor import Preprocessor
 
 
 class AnkiConvertor:
@@ -36,8 +37,11 @@ class AnkiConvertor:
 
         # Convert the org files into list of notes
         cards: typing.List[genanki.Note] = []
+
+        preprocessor = Preprocessor()
         for f in f_list:
-            self.cur_file = orgparse.load(f)
+            preprocessed_source = preprocessor.preprocess_file(f)
+            self.cur_file = orgparse.loads(preprocessed_source)
 
             # If user did not supplied the convert mode - try to get the convert mode
             # from the org file header fall back to NORMAL mode
