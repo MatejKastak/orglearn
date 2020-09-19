@@ -2,6 +2,7 @@ import logging
 import os
 import tempfile
 import typing
+import sys
 
 import click
 
@@ -139,7 +140,16 @@ def map_cmd(org_files: typing.Tuple[str], backend_name: str, output: str, itl: b
     type=click.IntRange(1, 8),
     help="Set the heading level of the output pdf file.",
 )
-def pdf(org_files: typing.Tuple[str], heading_level: int) -> None:
+@click.option(
+    "-E",
+    "--exit-after-preprocessing",
+    "exit_after_preprocessing",
+    show_default=True,
+    is_flag=True,
+    type=bool,
+    help="Exit after preprocessing the file and print it to stdout.",
+)
+def pdf(org_files: typing.Tuple[str], heading_level: int, exit_after_preprocessing: bool) -> None:
     """Convert ORG_FILES into pdf files."""
 
     # TODO: Test if pandoc is installed, if not report an error
@@ -187,6 +197,10 @@ def pdf(org_files: typing.Tuple[str], heading_level: int) -> None:
                 input_content += "#+OPTIONS: H:{}\n".format(heading_level)
 
             input_content += Preprocessor().preprocess_file(file_path)
+
+            if exit_after_preprocessing:
+                print(input_content)
+                sys.exit(0)
 
             # Change the compilation context to the file directory
             # this is needed in order to include images from the paths relative to org file
