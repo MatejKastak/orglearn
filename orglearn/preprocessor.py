@@ -3,10 +3,12 @@ import orgparse
 import typing
 import os
 
+# TODO: We should cache parsed files
+
 
 class Preprocessor:
     REGEXP_IMAGE = re.compile(r"^\s*\[\[(.*)\]\]$")
-    REGEXP_LINK = re.compile(r"^\*+\s+\[OL\](.*)$")
+    REGEXP_COMMAND = re.compile(r"^\*+\s+\[([A-Z]+)\](.*)$")
 
     def __init__(self) -> None:
         self.source_file: typing.Optional[str] = None
@@ -20,28 +22,65 @@ class Preprocessor:
         res = ""
 
         for line in file_source.splitlines():
-            m = self.REGEXP_LINK.search(line)
+            m = self.REGEXP_COMMAND.search(line)
+
+            # TODO: This can be optimized
 
             if m:
-                parts = m.group(1).split("@")
-                include_title, include_path = parts[0], parts[1]
+                if m.group(1) == "OL":
+                    parts = m.group(2).split("@")
+                    if len(parts) == 1:
+                        include_title = parts[0]
+                        include_path = self.current_file
+                    else:
+                        include_title = parts[0]
+                        include_path = parts[1] or self.current_file
 
-                res += line
-                res += "\n"
+                    res += line
+                    res += "\n"
 
-                include_org_file = orgparse.load(include_path)
-                self.current_file = include_path
+                    include_org_file = orgparse.load(include_path)
+                    self.current_file = include_path
 
-                for something in include_org_file:
-                    try:
-                        if something.heading == include_title:
-                            res += self._process_body(something._lines[1:])
-                            res += "\n"
-                            for child in something.children:
-                                res += self._include_node(child)
-                    except AttributeError:
-                        # Root node does not have heading attribute
-                        pass
+                    for something in include_org_file:
+                        try:
+                            if something.heading == include_title:
+                                res += self._process_body(something._lines[1:])
+                                res += "\n"
+                                for child in something.children:
+                                    res += self._include_node(child)
+                        except AttributeError:
+                            # Root node does not have heading attribute
+                            pass
+                elif m.group(1) == "OI":
+                    parts = m.group(2).split("@")
+                    if len(parts) == 1:
+                        include_title = parts[0]
+                        include_path = self.current_file
+                    else:
+                        include_title = parts[0]
+                        include_path = parts[1] or self.current_file
+
+                    # res += line
+                    res += "\n"
+
+                    include_org_file = orgparse.load(include_path)
+                    self.current_file = include_path
+
+                    for something in include_org_file:
+                        try:
+                            if something.heading == include_title:
+                                res += self._process_body(something._lines[1:])
+                                res += "\n"
+                                for child in something.children:
+                                    res += self._include_node(child)
+                        except AttributeError:
+                            # Root node does not have heading attribute
+                            pass
+                else:
+                    # This branch is here in case any of the titles start with [TAG] prefix
+                    res += line
+                    res += "\n"
             else:
                 res += line
                 res += "\n"
