@@ -19,7 +19,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="orglearn",
-    version="1.0.11",  # TODO: Better way to handle versions
+    version="1.0.12",  # TODO: Better way to handle versions
     author="Matej Kastak",
     author_email="matej.kastak@gmail.com",
     description="Tool to learn from your org-mode notes",
