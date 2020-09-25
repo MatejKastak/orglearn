@@ -191,10 +191,14 @@ def pdf(org_files: typing.Tuple[str], heading_level: int, exit_after_preprocessi
         for file_path in org_files:
 
             input_content = ""
-            input_content += "#+OPTIONS: tags:nil\n"
+            input_content += r"#+LATEX_HEADER: \setlength\parindent{0pt}"
+            input_content += "\n"
+            input_content += "#+OPTIONS: tags:nil"
+            input_content += "\n"
 
             if heading_level:
-                input_content += "#+OPTIONS: H:{}\n".format(heading_level)
+                input_content += "#+OPTIONS: H:{}".format(heading_level)
+                input_content += "\n"
 
             input_content += Preprocessor().preprocess_file(file_path)
 
@@ -213,6 +217,11 @@ def pdf(org_files: typing.Tuple[str], heading_level: int, exit_after_preprocessi
                 "org",
                 outputfile=of,
                 extra_args=[
+                    # TODO: Add an option to set the documentclass
+                    "-V",
+                    "documentclass=report",
+                    "-V",
+                    "block-headings",
                     "--toc",
                     "-N",
                     "-V",
