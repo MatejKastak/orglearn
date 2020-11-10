@@ -24,7 +24,7 @@ Orglearn is able to create pdf from your notes. You can achieve similar results
 converting org files to pdf using emacs. But we think that using `pandoc`
 results in better looking pdfs and gives us the best way to customize the result.
 
-To be able to convert org files to pdf you need to have `pandoc` installed on
+To be able to convert org files to pdf you need to have `pandoc` along with `pdflatex` installed on
 your system.
 
 ## Instalation
