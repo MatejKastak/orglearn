@@ -7,8 +7,8 @@ import typing
 import genanki
 import orgparse
 
-latex_eq = re.compile(r"\$(.*)\$")
-image_struct = re.compile(r"\[\[(.*)\]\]")
+latex_eq = re.compile(r"\$\$?(.*?)\$\$?")
+image_struct = re.compile(r"\[\[(.*?)\]\]")
 
 
 class AnkiConvertMode(enum.Enum):
