@@ -80,7 +80,7 @@ class NodeConvertor:
             return self._mode_convertors[mode](node)
         except KeyError:
             logging.error("Invalid convertor mode selected")
-            return None
+            raise ValueError("Invalid convertor mode")
 
     def _convert_normal(self, node: orgparse.node.OrgNode) -> typing.Optional[genanki.Note]:
         generate = False
