@@ -9,4 +9,4 @@ orgparse==0.1.2
 pre-commit==2.0.1
 pypandoc==1.4
 pystache==0.5.4
-PyYAML==5.2
+PyYAML==5.4
