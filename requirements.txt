@@ -1,12 +1,6 @@
-black==19.10b0
-cached-property==1.5.1
-colour==0.1.5
 Click==7.0
-frozendict==1.2
+colour==0.1.5
 genanki==0.8.0
 graphviz==0.13.2
 orgparse==0.1.2
-pre-commit==2.0.1
 pypandoc==1.4
-pystache==0.5.4
-PyYAML==5.2

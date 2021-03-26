@@ -17,6 +17,8 @@ def requirements(filepath: str) -> typing.List[str]:
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+development = ["black==19.10b0", "pre-commit==2.0.1"]
+
 setup(
     name="orglearn",
     version="1.0.13",  # TODO: Better way to handle versions
@@ -42,6 +44,10 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Topic :: Education",
     ],
+    extras_require={
+        "all": development,
+        "dev": development,
+    },
     include_package_data=True,
     install_requires=requirements("requirements.txt"),
     url="https://github.com/MatejKastak/orglearn",
