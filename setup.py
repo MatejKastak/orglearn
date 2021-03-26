@@ -21,7 +21,7 @@ development = ["black==19.10b0", "pre-commit==2.0.1"]
 
 setup(
     name="orglearn",
-    version="1.0.13",  # TODO: Better way to handle versions
+    version="1.0.14",  # TODO: Better way to handle versions
     author="Matej Kastak",
     author_email="matej.kastak@gmail.com",
     description="Tool to learn from your org-mode notes",
