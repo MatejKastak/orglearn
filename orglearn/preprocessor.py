@@ -1,8 +1,9 @@
-import re
-import orgparse
-import typing
 import os
+import re
 import sys
+import typing
+
+import orgparse
 
 # TODO: We should cache parsed files
 
@@ -124,6 +125,33 @@ class Preprocessor:
                     res += "\n"
                     for child in node.children:
                         res += self._include_node(child)
+                elif m.group(1) == "OIS":
+                    parts = m.group(2).split("@")
+                    if len(parts) == 1:
+                        include_title = parts[0]
+                        include_path = self.origin_file
+                    else:
+                        include_title = parts[0]
+                        include_path = parts[1] or self.origin_file
+
+                    # Don't include the node title
+                    # res += line
+                    res += "\n"
+
+                    include_org_file = orgparse.load(include_path)
+                    self.current_file = include_path
+
+                    node = self._find_node_in_tree(include_title, include_org_file)
+                    if node is None:
+                        # TODO: Abort
+                        # TODO: Should we raise exception
+                        self._abort_preprocessing(include_title, line_num)
+                        return ""
+
+                    res += self._process_body(node._lines[1:])
+                    res += "\n"
+                    # for child in node.children:
+                    #     res += self._include_node(child)
                 else:
                     # This branch is here in case any of the titles start with [TAG] prefix
                     res += line
@@ -157,6 +185,7 @@ class Preprocessor:
 
         # Get the heading line, this is a bit hackish, maybe a better way
         # is to construct the heading based on the public attributes
+        # TODO: Adjust the number of stars (indent)
         res += node._lines[0]
         res += "\n"
         res += self._process_body(node._lines[1:])
