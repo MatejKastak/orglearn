@@ -1,0 +1,20 @@
+
+* Main file
+
+This tests the command OI
+
+** [OL]Include me
+
+* Other heading
+
+** Include me
+
+This should be duplicated
+
+* Testing header
+
+** [OL]More@./include.org
+
+* Last header
+
+** [OL]Test@./include.org

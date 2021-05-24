@@ -57,3 +57,47 @@ test body
 """
 
     assert a == expected
+
+
+def test_command_ol(preprocessor, data_folder):
+    f = data_folder / "ol.org"
+    a = preprocessor.preprocess_file(str(f))
+
+    expected = """
+* Main file
+
+This tests the command OI
+
+** [OL]Include me
+
+This should be duplicated
+
+
+* Other heading
+
+** Include me
+
+This should be duplicated
+
+* Testing header
+
+** [OL]More@./include.org
+
+more body
+
+* Last header
+
+** [OL]Test@./include.org
+
+test body
+
+** Nested
+
+nested body
+
+*** More
+
+more body
+"""
+
+    assert a == expected

@@ -105,7 +105,6 @@ class Preprocessor:
                         return ""
 
                     res += self._process_body(node._lines[1:])
-                    res += "\n"
                     for child in node.children:
                         res += self._include_node(child)
                 elif m.group(1) == "OI":
@@ -185,8 +184,6 @@ class Preprocessor:
         res += node._lines[0]
         res += "\n"
         res += self._process_body(node._lines[1:])
-        # res += node.body
-        res += "\n"
 
         for child in node.children:
             res += self._include_node(child)
