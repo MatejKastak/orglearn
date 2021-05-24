@@ -118,10 +118,6 @@ class Preprocessor:
                         include_title = parts[0]
                         include_path = parts[1] or self.origin_file
 
-                    # Don't include the node title
-                    # res += line
-                    # res += "\n"
-
                     include_org_file = orgparse.load(str(include_path))
                     self.current_file = include_path
 
@@ -133,7 +129,6 @@ class Preprocessor:
                         return ""
 
                     res += self._process_body(node._lines[1:])
-                    # res += "\n"
                     for child in node.children:
                         res += self._include_node(child)
                 elif m.group(1) == "OIS":
@@ -145,10 +140,6 @@ class Preprocessor:
                         include_title = parts[0]
                         include_path = parts[1] or self.origin_file
 
-                    # Don't include the node title
-                    # res += line
-                    res += "\n"
-
                     include_org_file = orgparse.load(str(include_path))
                     self.current_file = include_path
 
@@ -160,9 +151,6 @@ class Preprocessor:
                         return ""
 
                     res += self._process_body(node._lines[1:])
-                    res += "\n"
-                    # for child in node.children:
-                    #     res += self._include_node(child)
                 else:
                     # This branch is here in case any of the titles start with [TAG] prefix
                     res += line
