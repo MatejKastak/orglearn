@@ -1,12 +1,13 @@
 import logging
 import os
+import sys
 import tempfile
 import typing
-import sys
 
 import click
-
 import pypandoc
+
+import orglearn.utils as utils
 from orglearn.anki.anki_convertor import AnkiConvertor
 from orglearn.anki.node_convertor import AnkiConvertMode
 from orglearn.mind_map.backend.backends import Backends
@@ -20,8 +21,7 @@ from orglearn.preprocessor import Preprocessor
 def main(ctx: click.Context, verbose: bool) -> None:
     """Toolbox for learning from your org notes."""
 
-    if verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+    utils.setup_loggging(logging.DEBUG if verbose else logging.WARNING)
 
     if ctx.invoked_subcommand is None:
         print("Hello, orglearn")
