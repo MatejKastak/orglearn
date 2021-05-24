@@ -1,11 +1,17 @@
+import logging
 import os
+import pathlib
 import re
 import sys
 import typing
 
 import orgparse
 
+import orglearn.utils as utils
+
 # TODO: We should cache parsed files
+
+log = logging.getLogger(__name__)
 
 
 class Preprocessor:
@@ -16,10 +22,15 @@ class Preprocessor:
         self.source_file: typing.Optional[str] = None
 
     def preprocess_file(self, file_path: str) -> str:
-        with open(file_path, "r") as input_file:
-            self.origin_file = file_path
+        """Preprocess file specified by the path."""
+        log.info(f"Preprocessing file {file_path}")
+
+        f = pathlib.Path(file_path)
+
+        with utils.Workdir(f.parent):
+            self.origin_file = pathlib.Path(f.name)
             self.current_file = file_path
-            return self.preprocess_string(input_file.read())
+            return self.preprocess_string(self.origin_file.read_text())
 
     @staticmethod
     def _find_node_in_tree(
@@ -84,7 +95,7 @@ class Preprocessor:
                     res += line
                     res += "\n"
 
-                    include_org_file = orgparse.load(include_path)
+                    include_org_file = orgparse.load(str(include_path))
                     self.current_file = include_path
 
                     node = self._find_node_in_tree(include_title, include_org_file)
@@ -109,9 +120,9 @@ class Preprocessor:
 
                     # Don't include the node title
                     # res += line
-                    res += "\n"
+                    # res += "\n"
 
-                    include_org_file = orgparse.load(include_path)
+                    include_org_file = orgparse.load(str(include_path))
                     self.current_file = include_path
 
                     node = self._find_node_in_tree(include_title, include_org_file)
@@ -122,7 +133,7 @@ class Preprocessor:
                         return ""
 
                     res += self._process_body(node._lines[1:])
-                    res += "\n"
+                    # res += "\n"
                     for child in node.children:
                         res += self._include_node(child)
                 elif m.group(1) == "OIS":
@@ -138,7 +149,7 @@ class Preprocessor:
                     # res += line
                     res += "\n"
 
-                    include_org_file = orgparse.load(include_path)
+                    include_org_file = orgparse.load(str(include_path))
                     self.current_file = include_path
 
                     node = self._find_node_in_tree(include_title, include_org_file)
