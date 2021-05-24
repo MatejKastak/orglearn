@@ -2,14 +2,14 @@
 
 # Orglearn
 
-Orglean provides toolbox for learning from your org-mode notes. It can generate mind
+Orglearn provides toolbox for learning from your org-mode notes. It can generate mind
 maps, anki decks and even pdfs textbooks.
 
 ## Modes [commands]
 
 ### Anki
 
-Convert notes to anki deck. The convertor will take all leafs of the tree (nodes
+Convert notes to anki deck. The converter will take all leafs of the tree (nodes
 without children) and convert them into anki cards. The node title is
 front-side of the card and the body is the back-side of the card.
 
@@ -22,12 +22,12 @@ good way to visualize the relationships between each node.
 
 Orglearn is able to create pdf from your notes. You can achieve similar results
 converting org files to pdf using emacs. But we think that using `pandoc`
-results in better looking pdfs and gives us the best way to customize the result.
+results in better looking PDFs and gives us the best way to customize the result.
 
 To be able to convert org files to pdf you need to have `pandoc` along with `pdflatex` installed on
 your system.
 
-## Instalation
+## Installation
 
 The latest stable release of `orglearn` can be obtained via `pypi`:
 ```sh
@@ -53,10 +53,10 @@ orglearn anki file1.org file2.org # Convert multiple files into single deck
 
 ## Contributing
 
-Constributions are highly appreciated. If you choose to contribute please read the Contribution Guidelines (TBD).
+Contributions are highly appreciated. If you choose to contribute please read the Contribution Guidelines (TBD).
 
 We are using the [black](https://github.com/psf/black) for the source code
-formatting. To use it automatically preprare pre-commit hooks with the following
+formatting. To use it automatically prepare pre-commit hooks with the following
 command.
 
 ```sh
