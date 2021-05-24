@@ -1,0 +1,22 @@
+#+TITLE: lokalne_prehladavanie
+
+* Lokalne prehladavanie
+
+** Hill-climbing search
+
+*** Stochastic hill climbing
+
+**** First-choice hill climbing
+
+*** Random-restart hill climbing
+
+** Simulated annealing
+Pravdepodobnost ze pojdeme do uzlu s horsim ohodnotenim $e^{\frac{\delta E}{T}}$ .
+
+** Local beam search
+
+** Genetic algorithm
+
+** Lokalne vyhladavanie v spojitom priestore
+
+*** Hladanie minima - optimalizacia

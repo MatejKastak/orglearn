@@ -17,7 +17,7 @@ def requirements(filepath: str) -> typing.List[str]:
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-development = ["black==19.10b0", "pre-commit==2.0.1"]
+development = ["pytest==6.2.4", "black==19.10b0", "pre-commit==2.0.1", "ipdb==0.13.7"]
 
 setup(
     name="orglearn",

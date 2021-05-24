@@ -63,3 +63,11 @@ command.
 pre-commit install # Install the pre-commit hooks
 ```
 
+### Tests
+
+Use the following command to run tests:
+
+```bash
+make test
+```
+
