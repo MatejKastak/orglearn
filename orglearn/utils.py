@@ -1,5 +1,19 @@
+import contextlib
 import logging
+import os
+import pathlib
 import sys
+import typing
+
+
+@contextlib.contextmanager
+def Workdir(workdir: typing.Union[str, pathlib.Path]) -> typing.Iterator[None]:
+    old_dir = os.getcwd()
+    os.chdir(str(workdir))
+
+    yield
+
+    os.chdir(old_dir)
 
 
 def setup_loggging(log_level: int) -> None:
