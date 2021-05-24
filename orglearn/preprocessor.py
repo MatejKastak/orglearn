@@ -77,7 +77,7 @@ class Preprocessor:
     def preprocess_string(self, file_source: str) -> str:
         res = ""
 
-        for line_num, line in enumerate(file_source.splitlines(), start=1):
+        for line_num, line in enumerate(file_source.splitlines(keepends=True), start=1):
             m = self.REGEXP_COMMAND.search(line)
 
             # TODO: This can be optimized
@@ -93,7 +93,6 @@ class Preprocessor:
                         include_path = parts[1] or self.origin_file
 
                     res += line
-                    res += "\n"
 
                     include_org_file = orgparse.load(str(include_path))
                     self.current_file = include_path
@@ -154,10 +153,8 @@ class Preprocessor:
                 else:
                     # This branch is here in case any of the titles start with [TAG] prefix
                     res += line
-                    res += "\n"
             else:
                 res += line
-                res += "\n"
 
         return res
 
