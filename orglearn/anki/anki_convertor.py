@@ -84,7 +84,6 @@ class AnkiConvertor:
         tmp_out_file.unlink()
 
     def __init__(self, **kwargs: typing.Any):
-        self.mobile = kwargs.pop("mobile", False)
         self.ignore_tags = set(kwargs.pop("ignore_tags_list", []))
         self.ignore_shallow_tags = set(kwargs.pop("ignore_shallow_tags_list", []))
         self._convert_mode = kwargs.pop("convert_mode", None)
@@ -94,7 +93,7 @@ class AnkiConvertor:
             # If we have unused options raise an exception
             ValueError(f"Unknown kwargs '{kwargs}'")
 
-        self.node_convertor = NodeConvertor(self.mobile)
+        self.node_convertor = NodeConvertor()
         self.preprocessor = Preprocessor()
 
     def _get_cards(

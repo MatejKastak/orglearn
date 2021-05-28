@@ -33,12 +33,6 @@ def main(ctx: click.Context, verbose: bool) -> None:
 @main.command()
 @click.argument("org_files", type=click.Path(exists=True), required=True, nargs=-1)
 @click.option(
-    "-m",
-    "--mobile",
-    is_flag=True,
-    help="Generate cards suitable for mobile anki (do not process latex).",
-)
-@click.option(
     "-c",
     "--conversion-mode",
     type=click.Choice(AnkiConvertMode.__members__.keys(), case_sensitive=False),
@@ -62,7 +56,6 @@ def main(ctx: click.Context, verbose: bool) -> None:
 )
 def anki(
     org_files: typing.Tuple[str],
-    mobile: bool,
     conversion_mode: typing.Optional[str],
     istl: bool,
     itl: bool,
@@ -73,7 +66,6 @@ def anki(
     _conversion_mode = AnkiConvertMode[conversion_mode.upper()] if conversion_mode else None
 
     c = AnkiConvertor(
-        mobile=mobile,
         convert_mode=_conversion_mode,
         ignore_shallow_tags_list=istl,
         ignore_tags_list=itl,
