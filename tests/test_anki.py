@@ -37,10 +37,41 @@ def test_basic(tmp_path, data_folder):
         expected_cards = [
             ("First node", "First body"),
             ("First node -> First First node", "First First body"),
+            ("First node -> First Second node", ""),
             ("Second node", "Second body"),
             ("Third node", "Third body"),
             ("Third node -> Third First node", "Third First body"),
         ]
+
+        assert len(expected_cards) == len(notes)
+
+        for (title, body) in expected_cards:
+            assert any(title == note.fields[0] and body == note.fields[1] for note in notes)
+
+
+def test_exclude_empty(tmp_path, data_folder):
+    # Initalize convertor
+    c = AnkiConvertor(exclude_empty=True)
+
+    # Convert
+    org_file = data_folder / "anki.org"
+    out_file = tmp_path / "anki.apkg"
+    c.convert(str(org_file), str(out_file))
+
+    # Open the anki deck
+    with open_apkg(str(out_file)) as col:
+
+        notes = list(notes_iterator(col))
+
+        expected_cards = [
+            ("First node", "First body"),
+            ("First node -> First First node", "First First body"),
+            ("Second node", "Second body"),
+            ("Third node", "Third body"),
+            ("Third node -> Third First node", "Third First body"),
+        ]
+
+        assert len(expected_cards) == len(notes)
 
         for (title, body) in expected_cards:
             assert any(title == note.fields[0] and body == note.fields[1] for note in notes)

@@ -22,6 +22,20 @@ class AnkiConvertor:
 
     COMMENT_ANKI_CONVERT_MODE = "ANKI_CONVERT_MODE"
 
+    def __init__(self, **kwargs: typing.Any):
+        self.exclude_empty = kwargs.pop("exclude_empty", False)
+        self.ignore_tags = set(kwargs.pop("ignore_tags_list", {}))
+        self.ignore_shallow_tags = set(kwargs.pop("ignore_shallow_tags_list", {}))
+        self._convert_mode = kwargs.pop("convert_mode", None)
+        self.user_supplied_convert_mode = bool(self._convert_mode)
+
+        if kwargs:
+            # If we have unused options raise an exception
+            ValueError(f"Unknown kwargs '{kwargs}'")
+
+        self.node_convertor = NodeConvertor()
+        self.preprocessor = Preprocessor()
+
     def convert(self, in_file_str: str, out_file_str: str = None) -> None:
         """Convert a single file to ANKI deck."""
 
@@ -83,19 +97,6 @@ class AnkiConvertor:
 
         tmp_out_file.unlink()
 
-    def __init__(self, **kwargs: typing.Any):
-        self.ignore_tags = set(kwargs.pop("ignore_tags_list", []))
-        self.ignore_shallow_tags = set(kwargs.pop("ignore_shallow_tags_list", []))
-        self._convert_mode = kwargs.pop("convert_mode", None)
-        self.user_supplied_convert_mode = bool(self._convert_mode)
-
-        if kwargs:
-            # If we have unused options raise an exception
-            ValueError(f"Unknown kwargs '{kwargs}'")
-
-        self.node_convertor = NodeConvertor()
-        self.preprocessor = Preprocessor()
-
     def _get_cards(
         self, tree_level: orgparse.node.OrgNode, output_list: typing.List[genanki.Note]
     ) -> None:
@@ -103,11 +104,17 @@ class AnkiConvertor:
             # TODO: We can maybe include also cards that have children but
             # also have body text, those will have a list of all children titles?
             # TODO: This node will also contain the child node titles
-            if not self.ignore_tags.intersection(
-                child.tags
-            ) and not self.ignore_shallow_tags.intersection(child.shallow_tags):
+            if self.should_include_node(child):
                 self._process_node(child, output_list)
             self._get_cards(child, output_list)
+
+    def should_include_node(self, node: orgparse.node.OrgNode) -> bool:
+        """Determine if the node should be included."""
+        return (
+            not self.ignore_tags.intersection(node.tags)
+            and not self.ignore_shallow_tags.intersection(node.shallow_tags)
+            and not (self.exclude_empty and not node.body)
+        )
 
     def _process_node(
         self, node: orgparse.node.OrgNode, output_list: typing.List[genanki.Note]

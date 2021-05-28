@@ -41,6 +41,12 @@ def main(ctx: click.Context, verbose: bool) -> None:
     show_default=True,
 )
 @click.option(
+    "-e",
+    "--exclude-empty",
+    help="Exclude nodes with empty body.",
+    default=False,
+)
+@click.option(
     "-i",
     "--ignore-shallow-tag",
     "istl",
@@ -57,8 +63,9 @@ def main(ctx: click.Context, verbose: bool) -> None:
 def anki(
     org_files: typing.Tuple[str],
     conversion_mode: typing.Optional[str],
-    istl: bool,
-    itl: bool,
+    exclude_empty: bool,
+    istl: typing.List[str],
+    itl: typing.List[str],
 ) -> None:
     """Convert org files ORG_FILES into an anki deck."""
 
@@ -67,6 +74,7 @@ def anki(
 
     c = AnkiConvertor(
         convert_mode=_conversion_mode,
+        exclude_empty=exclude_empty,
         ignore_shallow_tags_list=istl,
         ignore_tags_list=itl,
     )
