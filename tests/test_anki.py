@@ -35,12 +35,12 @@ def test_basic(tmp_path, data_folder):
         notes = list(notes_iterator(col))
 
         expected_cards = [
-            "First node",
-            "First node -> First First node",
-            "Second node",
-            "Third node",
-            "Third node -> Third First node",
+            ("First node", "First body"),
+            ("First node -> First First node", "First First body"),
+            ("Second node", "Second body"),
+            ("Third node", "Third body"),
+            ("Third node -> Third First node", "Third First body"),
         ]
 
-        for title in expected_cards:
-            assert any(title in note.fields[0] for note in notes)
+        for (title, body) in expected_cards:
+            assert any(title == note.fields[0] and body == note.fields[1] for note in notes)
