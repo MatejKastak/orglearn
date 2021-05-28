@@ -33,18 +33,6 @@ def main(ctx: click.Context, verbose: bool) -> None:
 @main.command()
 @click.argument("org_files", type=click.Path(exists=True), required=True, nargs=-1)
 @click.option(
-    "-a",
-    "--append",
-    is_flag=True,
-    help="Append cards to existing apki deck. Requires specifing -o option.",
-)
-@click.option(
-    "-o",
-    "--output",
-    type=click.Path(resolve_path=True, dir_okay=False, writable=True),
-    help="Conversion output file.",
-)
-@click.option(
     "-m",
     "--mobile",
     is_flag=True,
@@ -74,30 +62,25 @@ def main(ctx: click.Context, verbose: bool) -> None:
 )
 def anki(
     org_files: typing.Tuple[str],
-    append: bool,
-    output: str,
     mobile: bool,
     conversion_mode: typing.Optional[str],
     istl: bool,
     itl: bool,
 ) -> None:
     """Convert org files ORG_FILES into an anki deck."""
-    if append and not output:
-        print("Append specified without output flag.")
-        return
 
     # TODO: Create click.Choice for enums and return optional enum instead of this conversion
     _conversion_mode = AnkiConvertMode[conversion_mode.upper()] if conversion_mode else None
 
     c = AnkiConvertor(
-        output,
-        org_files,
-        append=append,
         mobile=mobile,
         convert_mode=_conversion_mode,
         ignore_shallow_tags_list=istl,
         ignore_tags_list=itl,
     )
+
+    for org_file in org_files:
+        c.convert(org_file)
 
 
 @main.command("map")

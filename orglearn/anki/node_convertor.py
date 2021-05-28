@@ -7,6 +7,8 @@ import typing
 import genanki
 import orgparse
 
+log = logging.getLogger(__name__)
+
 latex_eq = re.compile(r"\$\$?(.*?)\$\$?")
 image_struct = re.compile(r"\[\[(.*?)\]\]")
 
@@ -60,14 +62,13 @@ class NodeConvertor:
             AnkiConvertMode.CODE: self._convert_code,
         }
 
-    @staticmethod
-    def _get_card_title(node: orgparse.node.OrgNode, depth: int = 1) -> str:
-        """Construct the node title with the optional parent node headings."""
+    def _get_card_title(self, node: orgparse.node.OrgNode) -> str:
+        """Construct the node title."""
         res = node.heading
-        for _ in range(depth):
+        while 1:
             try:
                 node = node.parent
-                res = "{} -> {}".format(node.heading, res)
+                res = f"{node.heading} -> {res}"
             except AttributeError:
                 return res
         return res
@@ -79,41 +80,22 @@ class NodeConvertor:
         try:
             return self._mode_convertors[mode](node)
         except KeyError:
-            logging.error("Invalid convertor mode selected")
+            log.error("Invalid convertor mode selected")
             raise ValueError("Invalid convertor mode")
 
     def _convert_normal(self, node: orgparse.node.OrgNode) -> typing.Optional[genanki.Note]:
         generate = False
         card_body = ""
-        depth = 1
         if node.body or not node.children:
             generate = True
-            card_body = node.body
-
-            # Ignore processing if the output is for mobile
-            if not self._mobile:
-                card_body = latex_eq.sub(r"[$]\1[/$]", card_body)
-                card_body = image_struct.sub(r'<img src="\1">', card_body)
-
-            # Check if the parent is list, if so increase the card_title depth
-            try:
-                # TODO: Walk the list and find all parent lists
-                if "anki_list" in node.parent.shallow_tags:
-                    depth = 2
-            except AttributeError:
-                pass
+            card_body = self._convert_text_to_anki(node.body)
 
         if "anki_list" in node.shallow_tags:
             generate = True
-
-            if card_body:
-                card_body += "\n"
-
-            for child in node.children:
-                card_body += "- {}\n".format(child.heading)
+            card_body = self._append_anki_list_footer(node, card_body)
 
         card_body = card_body.replace("\n", "<br />")
-        card_title = self._get_card_title(node, depth)
+        card_title = self._get_card_title(node)
         if generate:
             return genanki.Note(model=self.MODEL_NORMAL, fields=[card_title, card_body])
 
@@ -124,7 +106,6 @@ class NodeConvertor:
 
     def _convert_code(self, node: orgparse.node.OrgNode) -> typing.Optional[genanki.Note]:
         generate = False
-        depth = 1
         assignment = ""
         solution = node.body
         if node.body or not node.children:
@@ -135,34 +116,38 @@ class NodeConvertor:
             if len(body_split) == 2:
                 assignment, solution = body_split
 
-            # Ignore processing if the output is for mobile
-            if not self._mobile:
-                assignment = latex_eq.sub(r"[$]\1[/$]", assignment)
-                assignment = image_struct.sub(r'<img src="\1">', assignment)
-                solution = latex_eq.sub(r"[$]\1[/$]", solution)
-                solution = image_struct.sub(r'<img src="\1">', solution)
-
-            # Check if the parent is list, if so increase the card_title depth
-            try:
-                # TODO: Walk the list and find all parent lists
-                if "anki_list" in node.parent.shallow_tags:
-                    depth = 2
-            except AttributeError:
-                pass
+            assignment = self._convert_text_to_anki(assignment)
+            solution = self._convert_text_to_anki(solution)
 
         if "anki_list" in node.shallow_tags:
             generate = True
-
-            if solution:
-                solution += "\n"
-
-            for child in node.children:
-                solution += "- {}\n".format(child.heading)
+            solution = self._append_anki_list_footer(node, solution)
 
         assignment = assignment.replace("\n", "<br />")
         solution = solution.replace("\n", "<br />")
-        card_title = self._get_card_title(node, depth)
+        card_title = self._get_card_title(node)
         if generate:
             return genanki.Note(model=self.MODEL_CODE, fields=[card_title, assignment, solution])
 
         return None
+
+    def _append_anki_list_footer(self, node: orgparse.node.OrgNode, body: str) -> str:
+        """Generate footer for the nodes marked with :anki_list:.
+
+        This footer will be a list of child nodes. The rationale is to provide aditional
+        context for the nodes that are the list of some topics.
+        """
+        if body:
+            body += "\n"
+
+        for child in node.children:
+            body += "- {}\n".format(child.heading)
+        return body
+
+    def _convert_text_to_anki(self, body: str) -> str:
+        """Perform necessary adjustments to the card text."""
+        # Ignore processing if the output is for mobile
+        if not self._mobile:
+            body = latex_eq.sub(r"[$]\1[/$]", body)
+            body = image_struct.sub(r'<img src="\1">', body)
+        return body

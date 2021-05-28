@@ -1,11 +1,18 @@
-import os
+import logging
+import pathlib
 import random
 import typing
 
 import genanki
 import orgparse
+from anki.exporting import AnkiPackageExporter
+from anki.importing import AnkiPackageImporter
+
+import orglearn.utils as utils
 from orglearn.anki.node_convertor import AnkiConvertMode, NodeConvertor
 from orglearn.preprocessor import Preprocessor
+
+log = logging.getLogger(__name__)
 
 
 class AnkiConvertor:
@@ -15,68 +22,80 @@ class AnkiConvertor:
 
     COMMENT_ANKI_CONVERT_MODE = "ANKI_CONVERT_MODE"
 
-    def __init__(self, o_file_path: str, f_list: typing.Sequence[str], **kwargs: typing.Any):
-        # TODO: Implement append
-        self.o_file_path = o_file_path
-        self.f_list = f_list
+    def convert(self, in_file_str: str, out_file_str: str = None) -> None:
+        """Convert a single file to ANKI deck."""
 
-        self.mobile = kwargs.pop("mobile", False)
-        self.ignore_tags = set(kwargs.pop("ignore_tags_list", []))
-        self.ignore_shallow_tags = set(kwargs.pop("ignore_shallow_tags_list", []))
+        log.info(f"Converting file '{in_file_str}' to ANKI deck @ '{out_file_str}'")
 
-        self._convert_mode = kwargs.pop("convert_mode", None)
-        user_supplied_convert_mode = bool(self._convert_mode)
+        # Create paths
+        in_file = pathlib.Path(in_file_str)
+        if out_file_str is not None:
+            assert out_file_str.endswith(AnkiConvertor.ANKI_EXT)
+            out_file = pathlib.Path(out_file_str).resolve()
+        else:
+            out_file = in_file.with_suffix(AnkiConvertor.ANKI_EXT).resolve()
+        tmp_out_file = out_file.with_suffix(".tmp.apkg").resolve()
 
-        self.node_convertor = NodeConvertor(self.mobile)
-
-        # Try to deteremine output file if none was specified
-        # TODO: This functionality can also be abstracted higher
-        if o_file_path is None:
-            root, _ = os.path.splitext(f_list[0])
-            o_file_path = root + AnkiConvertor.ANKI_EXT
-
-        # Convert the org files into list of notes
+        # Convert the org nodes into list of Notes
         cards: typing.List[genanki.Note] = []
 
-        preprocessor = Preprocessor()
-        for f in f_list:
-            preprocessed_source = preprocessor.preprocess_file(f)
-            self.cur_file = orgparse.loads(preprocessed_source)
+        # Preprocess and parse the file
+        preprocessed_source = self.preprocessor.preprocess_file(str(in_file))
+        org_file = orgparse.loads(preprocessed_source)
 
-            # If user did not supplied the convert mode - try to get the convert mode
-            # from the org file header fall back to NORMAL mode
-            if not user_supplied_convert_mode:
-                try:
-                    self.convert_mode = AnkiConvertMode[
-                        self.cur_file._special_comments[self.COMMENT_ANKI_CONVERT_MODE][0].upper()
-                    ]
-                except KeyError:
-                    self.convert_mode = AnkiConvertMode.NORMAL
-            else:
-                self.convert_mode = self._convert_mode
+        # If user did not supplied the convert mode - try to get the convert mode
+        # from the org file header fall back to NORMAL mode
+        if not self.user_supplied_convert_mode:
+            try:
+                self.convert_mode = AnkiConvertMode[
+                    org_file._special_comments[self.COMMENT_ANKI_CONVERT_MODE][0].upper()
+                ]
+            except KeyError:
+                self.convert_mode = AnkiConvertMode.NORMAL
+        else:
+            self.convert_mode = self._convert_mode
 
-            self._get_cards(self.cur_file, cards)
-
-        self.anki(o_file_path, cards)
-
-    def anki(self, anki_out_path: str, cards: typing.List[orgparse.node.OrgNode]) -> None:
-        """Save the cards into the output file."""
-
-        deck_name = anki_out_path
+        self._get_cards(org_file, cards)
 
         # Try to set the deck name to a org file title comment
         try:
-            deck_name = self.cur_file._special_comments["TITLE"][0]
-        except KeyError:
-            pass
+            deck_name = org_file._special_comments["TITLE"][0]
+        except (KeyError, IndexError):
+            deck_name = out_file.stem
 
         # TODO: Hash should be calculated from the cards
-        my_deck = genanki.Deck(random.randrange(1 << 30, 1 << 31), deck_name)
+        deck = genanki.Deck(random.randrange(1 << 30, 1 << 31), deck_name)
 
         for c in cards:
-            my_deck.add_note(c)
+            deck.add_note(c)
 
-        genanki.Package(my_deck).write_to_file(anki_out_path)
+        genanki.Package(deck).write_to_file(str(tmp_out_file))
+
+        # Import and export the collection using Anki
+        # This is neccessary to make mobile version work (include rendered equations)
+        with utils.create_empty_anki_collection() as col:
+            log.debug("Importing to tmp ANKI collection")
+            imp = AnkiPackageImporter(col, str(tmp_out_file))
+            imp.run()
+            log.debug("Exporting from tmp ANKI collection")
+            exp = AnkiPackageExporter(col)
+            exp.exportInto(str(out_file))
+
+        tmp_out_file.unlink()
+
+    def __init__(self, **kwargs: typing.Any):
+        self.mobile = kwargs.pop("mobile", False)
+        self.ignore_tags = set(kwargs.pop("ignore_tags_list", []))
+        self.ignore_shallow_tags = set(kwargs.pop("ignore_shallow_tags_list", []))
+        self._convert_mode = kwargs.pop("convert_mode", None)
+        self.user_supplied_convert_mode = bool(self._convert_mode)
+
+        if kwargs:
+            # If we have unused options raise an exception
+            ValueError(f"Unknown kwargs '{kwargs}'")
+
+        self.node_convertor = NodeConvertor(self.mobile)
+        self.preprocessor = Preprocessor()
 
     def _get_cards(
         self, tree_level: orgparse.node.OrgNode, output_list: typing.List[genanki.Note]
