@@ -43,6 +43,7 @@ def main(ctx: click.Context, verbose: bool) -> None:
 @click.option(
     "-e",
     "--exclude-empty",
+    is_flag=True,
     help="Exclude nodes with empty body.",
     default=False,
 )

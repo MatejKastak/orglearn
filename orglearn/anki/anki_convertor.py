@@ -110,10 +110,10 @@ class AnkiConvertor:
 
     def should_include_node(self, node: orgparse.node.OrgNode) -> bool:
         """Determine if the node should be included."""
-        return (
-            not self.ignore_tags.intersection(node.tags)
-            and not self.ignore_shallow_tags.intersection(node.shallow_tags)
-            and not (self.exclude_empty and not node.body)
+        return not (
+            bool(self.ignore_tags.intersection(node.tags))
+            or bool(self.ignore_shallow_tags.intersection(node.shallow_tags))
+            or (self.exclude_empty and not node.body.strip())
         )
 
     def _process_node(
@@ -121,4 +121,5 @@ class AnkiConvertor:
     ) -> None:
         converted_node = self.node_convertor.convert(node, self.convert_mode)
         if converted_node:
+            log.info(f"Adding node '{node.heading}'")
             output_list.append(converted_node)

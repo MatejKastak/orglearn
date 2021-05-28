@@ -39,6 +39,7 @@ def test_basic(tmp_path, data_folder):
             ("First node -> First First node", "First First body"),
             ("First node -> First Second node", ""),
             ("Second node", "Second body"),
+            ("Second node -> Second First node", "<br />" * 4),
             ("Third node", "Third body"),
             ("Third node -> Third First node", "Third First body"),
         ]
