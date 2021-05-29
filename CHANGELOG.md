@@ -2,7 +2,7 @@
 
 This file mentions all notable changes to orglearn project.
 
-# Unreleased
+# 1.1.0 (2021-05-29)
 
 * Add: `CHANGELOG.md`
 * Add: Logging framework
