@@ -87,7 +87,7 @@ class NodeConvertor:
         card_body = ""
         if node.body or not node.children:
             generate = True
-            card_body = node.body
+            card_body = self._convert_text_to_anki(node.body)
 
         if "anki_list" in node.shallow_tags:
             generate = True
@@ -115,6 +115,9 @@ class NodeConvertor:
             if len(body_split) == 2:
                 assignment, solution = body_split
 
+            assignment = self._convert_text_to_anki(assignment)
+            solution = self._convert_text_to_anki(solution)
+
         if "anki_list" in node.shallow_tags:
             generate = True
             solution = self._append_anki_list_footer(node, solution)
@@ -138,4 +141,10 @@ class NodeConvertor:
 
         for child in node.children:
             body += "- {}\n".format(child.heading)
+        return body
+
+    def _convert_text_to_anki(self, body: str) -> str:
+        """Perform necessary adjustments to the card text."""
+        body = latex_eq.sub(r"[$]\1[/$]", body)
+        body = image_struct.sub(r'<img src="\1">', body)
         return body

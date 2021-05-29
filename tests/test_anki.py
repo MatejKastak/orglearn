@@ -76,3 +76,28 @@ def test_exclude_empty(tmp_path, data_folder):
 
         for (title, body) in expected_cards:
             assert any(title == note.fields[0] and body == note.fields[1] for note in notes)
+
+
+def test_math(tmp_path, data_folder):
+    # Initalize convertor
+    c = AnkiConvertor(exclude_empty=True)
+
+    # Convert
+    org_file = data_folder / "anki_math.org"
+    out_file = tmp_path / "anki_math.apkg"
+    c.convert(str(org_file), str(out_file))
+
+    # Open the anki deck
+    with open_apkg(str(out_file)) as col:
+
+        notes = list(notes_iterator(col))
+
+        expected_cards = [
+            ("Mass–energy relation", "[$]E = mc^2[/$]"),
+            ("Integers", r"Let [$]a[/$] and [$]b[/$] be integers that are [$]\\le 0[/$]."),
+        ]
+
+        assert len(expected_cards) == len(notes)
+
+        for (title, body) in expected_cards:
+            assert any(title == note.fields[0] and body == note.fields[1] for note in notes)
