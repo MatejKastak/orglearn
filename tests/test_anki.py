@@ -94,7 +94,7 @@ def test_math(tmp_path, data_folder):
 
         expected_cards = [
             ("Mass–energy relation", "[$]E = mc^2[/$]"),
-            ("Integers", r"Let [$]a[/$] and [$]b[/$] be integers that are [$]\\le 0[/$]."),
+            ("Integers", "Let [$]a[/$] and [$]b[/$] be integers that are [$]\\le 0[/$]."),
         ]
 
         assert len(expected_cards) == len(notes)
