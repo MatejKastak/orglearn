@@ -53,7 +53,7 @@ class Preprocessor:
 
                     if node.get_property("ID") == match_string:
                         if ret_node is not None:
-                            # Not unique
+                            log.warning(f"Node is not unique {node_id}")
                             return None
                         else:
                             ret_node = node
@@ -64,7 +64,7 @@ class Preprocessor:
                 try:
                     if node.heading == node_id:
                         if ret_node is not None:
-                            # Not unique
+                            log.warning(f"Node is not unique {node_id}")
                             return None
                         else:
                             ret_node = node
