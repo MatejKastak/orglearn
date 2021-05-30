@@ -2,6 +2,11 @@
 
 This file mentions all notable changes to orglearn project.
 
+# 1.1.1 (2021-05-30)
+
+* Add: Use `xelatex` as pdf engine
+* Add: Show warnings on node_id collision
+
 # 1.1.0 (2021-05-29)
 
 * Add: `CHANGELOG.md`
