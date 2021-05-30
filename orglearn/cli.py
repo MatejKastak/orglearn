@@ -14,6 +14,8 @@ from orglearn.mind_map.backend.backends import Backends
 from orglearn.mind_map.map_convertor import MapConvertor
 from orglearn.preprocessor import Preprocessor
 
+log = logging.getLogger(__name__)
+
 
 @click.group(invoke_without_command=True)
 @click.option("-v", "--verbose", is_flag=True, help="Increase verbosity of orglearn.")
@@ -195,12 +197,15 @@ def pdf(org_files: typing.Tuple[str], heading_level: int, exit_after_preprocessi
             os.chdir(os.path.dirname(os.path.abspath(file_path)))
 
             of = os.path.splitext(os.path.basename(file_path))[0] + ".pdf"
+
+            log.info("Calling pandoc to generate PDF")
             pypandoc.convert_text(
                 input_content,
                 "pdf",
                 "org",
                 outputfile=of,
                 extra_args=[
+                    "--pdf-engine=xelatex",
                     # TODO: Add an option to set the documentclass
                     "-V",
                     "documentclass=report",
@@ -214,6 +219,7 @@ def pdf(org_files: typing.Tuple[str], heading_level: int, exit_after_preprocessi
                     fp.name,
                 ],
             )
+            log.info("PDF created")
 
         # Restore the old working directory
         os.chdir(old_working_directory)
