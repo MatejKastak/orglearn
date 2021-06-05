@@ -1,5 +1,6 @@
 import enum
 import logging
+import pathlib
 import random
 import re
 import typing
@@ -61,6 +62,8 @@ class NodeConvertor:
             AnkiConvertMode.CODE: self._convert_code,
         }
 
+        self.media_files: typing.List[str] = []
+
     def _get_card_title(self, node: orgparse.node.OrgNode) -> str:
         """Construct the node title."""
         res = node.heading
@@ -85,9 +88,10 @@ class NodeConvertor:
     def _convert_normal(self, node: orgparse.node.OrgNode) -> typing.Optional[genanki.Note]:
         generate = False
         card_body = ""
-        if node.body or not node.children:
+        node_body = "\n".join(node._lines[1:])
+        if node_body or not node.children:
             generate = True
-            card_body = self._convert_text_to_anki(node.body)
+            card_body = self._convert_text_to_anki(node_body)
 
         if "anki_list" in node.shallow_tags:
             generate = True
@@ -107,11 +111,12 @@ class NodeConvertor:
         generate = False
         assignment = ""
         solution = node.body
-        if node.body or not node.children:
+        node_body = "\n".join(node._lines[1:])
+        if node_body or not node.children:
             generate = True
 
             # Split the node body into two parts beaking on the first 2 empty lines
-            body_split = node.body.split("\n\n\n", 1)
+            body_split = node_body.split("\n\n\n", 1)
             if len(body_split) == 2:
                 assignment, solution = body_split
 
@@ -145,6 +150,21 @@ class NodeConvertor:
 
     def _convert_text_to_anki(self, body: str) -> str:
         """Perform necessary adjustments to the card text."""
-        body = latex_eq.sub(r"[$]\1[/$]", body)
-        body = image_struct.sub(r'<img src="\1">', body)
-        return body
+        res = ""
+        for line in body.splitlines(keepends=True):
+
+            # LaTeX
+            line = latex_eq.sub(r"[$]\1[/$]", line)
+
+            # Images
+            match = image_struct.match(line)
+            if match:
+                line = image_struct.sub(
+                    lambda x: f'<img src="{pathlib.Path(x.group(1)).name}">', line
+                )
+                # Collect the media files for exporting
+                self.media_files.append(match.group(1))
+
+            res += line
+
+        return res

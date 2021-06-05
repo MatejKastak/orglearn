@@ -83,7 +83,9 @@ class AnkiConvertor:
         for c in cards:
             deck.add_note(c)
 
-        genanki.Package(deck).write_to_file(str(tmp_out_file))
+        package = genanki.Package(deck)
+        package.media_files = self.node_convertor.media_files
+        package.write_to_file(str(tmp_out_file))
 
         # Import and export the collection using Anki
         # This is neccessary to make mobile version work (include rendered equations)
