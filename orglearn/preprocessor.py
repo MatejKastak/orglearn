@@ -1,5 +1,4 @@
 import logging
-import os
 import pathlib
 import re
 import sys
@@ -163,11 +162,16 @@ class Preprocessor:
             m = self.REGEXP_IMAGE.search(line)
 
             if m:
-                processed_file_base_dir = os.path.dirname(self.current_file)
-                res_image_path = os.path.join(processed_file_base_dir, m.group(1))
-                res_image_path = os.path.normpath(res_image_path)
+                processed_file_base_dir = pathlib.Path(self.current_file).parent
+                res_image_path = processed_file_base_dir / m.group(1)
+                res_image_path = res_image_path.resolve(strict=True)
 
-                res += "[[./{}]]".format(res_image_path)
+                if res_image_path.suffix not in [".png", ".jpg"]:
+                    log.warning(
+                        f"Image {res_image_path} might not be supported (consider converting to .png)"
+                    )
+
+                res += f"[[./{str(res_image_path)}]]"
                 res += "\n"
             else:
                 res += line
