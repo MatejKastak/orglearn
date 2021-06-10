@@ -2,6 +2,14 @@
 
 This file mentions all notable changes to orglearn project.
 
+# 1.1.2 (2021-06-10)
+
+* Add: Print pandoc failure exception
+* Add: Correctly calculate heading level when referencing
+* Add: Images to anki decks
+* Add: Preprocessor is migrated to `pathlib`
+* Add: Warning for unsupported image formats
+
 # 1.1.1 (2021-05-30)
 
 * Add: Use `xelatex` as pdf engine
