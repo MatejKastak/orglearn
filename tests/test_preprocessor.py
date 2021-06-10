@@ -91,11 +91,11 @@ more body
 
 test body
 
-** Nested
+*** Nested
 
 nested body
 
-*** More
+**** More
 
 more body
 """
@@ -131,11 +131,11 @@ more body
 
 test body
 
-** Nested
+*** Nested
 
 nested body
 
-*** More
+**** More
 
 more body
 """

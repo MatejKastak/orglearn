@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 class Preprocessor:
     REGEXP_IMAGE = re.compile(r"^\s*\[\[(.*)\]\]$")
-    REGEXP_COMMAND = re.compile(r"^\*+\s+\[([A-Z]+)\](.*)$")
+    REGEXP_COMMAND = re.compile(r"^(?P<stars>\*+)\s+\[(?P<command>[A-Z]+)\](?P<args>.*)$")
 
     def __init__(self) -> None:
         self.source_file: typing.Optional[str] = None
@@ -79,71 +79,46 @@ class Preprocessor:
         for line_num, line in enumerate(file_source.splitlines(keepends=True), start=1):
             m = self.REGEXP_COMMAND.search(line)
 
-            # TODO: This can be optimized
-
             if m:
-                if m.group(1) == "OL":
-                    parts = m.group(2).split("@")
-                    if len(parts) == 1:
-                        include_title = parts[0]
-                        include_path = self.origin_file
-                    else:
-                        include_title = parts[0]
-                        include_path = parts[1] or self.origin_file
+                next_level = len(m.group("stars")) + 1
+                command = m.group("command")
 
+                parts = m.group("args").split("@")
+                if len(parts) == 1:
+                    include_title = parts[0]
+                    include_path = self.origin_file
+                else:
+                    include_title = parts[0]
+                    include_path = parts[1] or self.origin_file
+
+                include_org_file = orgparse.load(str(include_path))
+                self.current_file = include_path
+
+                if command == "OL":
                     res += line
 
-                    include_org_file = orgparse.load(str(include_path))
-                    self.current_file = include_path
-
                     node = self._find_node_in_tree(include_title, include_org_file)
                     if node is None:
-                        # TODO: Abort
-                        # TODO: Should we raise exception
                         self._abort_preprocessing(include_title, line_num)
                         return ""
 
                     res += self._process_body(node._lines[1:])
                     for child in node.children:
-                        res += self._include_node(child)
-                elif m.group(1) == "OI":
-                    parts = m.group(2).split("@")
-                    if len(parts) == 1:
-                        include_title = parts[0]
-                        include_path = self.origin_file
-                    else:
-                        include_title = parts[0]
-                        include_path = parts[1] or self.origin_file
-
-                    include_org_file = orgparse.load(str(include_path))
-                    self.current_file = include_path
+                        res += self._include_node(next_level, child)
+                elif command == "OI":
 
                     node = self._find_node_in_tree(include_title, include_org_file)
                     if node is None:
-                        # TODO: Abort
-                        # TODO: Should we raise exception
                         self._abort_preprocessing(include_title, line_num)
                         return ""
 
                     res += self._process_body(node._lines[1:])
                     for child in node.children:
-                        res += self._include_node(child)
-                elif m.group(1) == "OIS":
-                    parts = m.group(2).split("@")
-                    if len(parts) == 1:
-                        include_title = parts[0]
-                        include_path = self.origin_file
-                    else:
-                        include_title = parts[0]
-                        include_path = parts[1] or self.origin_file
-
-                    include_org_file = orgparse.load(str(include_path))
-                    self.current_file = include_path
+                        res += self._include_node(next_level, child)
+                elif command == "OIS":
 
                     node = self._find_node_in_tree(include_title, include_org_file)
                     if node is None:
-                        # TODO: Abort
-                        # TODO: Should we raise exception
                         self._abort_preprocessing(include_title, line_num)
                         return ""
 
@@ -171,7 +146,7 @@ class Preprocessor:
                         f"Image {res_image_path} might not be supported (consider converting to .png)"
                     )
 
-                res += f"[[./{str(res_image_path)}]]"
+                res += f"[[{str(res_image_path)}]]"
                 res += "\n"
             else:
                 res += line
@@ -179,22 +154,31 @@ class Preprocessor:
 
         return res
 
-    def _include_node(self, node: orgparse.node.OrgNode) -> str:
+    def _include_node(self, base_level: int, node: orgparse.node.OrgNode) -> str:
         res = ""
 
         # Get the heading line, this is a bit hackish, maybe a better way
         # is to construct the heading based on the public attributes
-        # TODO: Adjust the number of stars (indent)
-        res += node._lines[0]
+        heading = node._lines[0]
+
+        # Strip the heading level and construct a new one
+        heading = heading.lstrip("*")
+
+        # Construct the correct heading
+        res += "*" * base_level
+        res += heading
+
         res += "\n"
+
         res += self._process_body(node._lines[1:])
 
         for child in node.children:
-            res += self._include_node(child)
+            res += self._include_node(base_level + 1, child)
 
         return res
 
     def _abort_preprocessing(self, node_id: str, line_num: int) -> None:
+        # TODO: Replace this function with exception
         print(
             'Preprocessing file "{}" failed when searching for node_id "{}" in file "{}" referenced from "{}":{}'.format(
                 self.origin_file, node_id, self.current_file, self.origin_file, line_num
