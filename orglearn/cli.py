@@ -199,26 +199,31 @@ def pdf(org_files: typing.Tuple[str], heading_level: int, exit_after_preprocessi
             of = os.path.splitext(os.path.basename(file_path))[0] + ".pdf"
 
             log.info("Calling pandoc to generate PDF")
-            pypandoc.convert_text(
-                input_content,
-                "pdf",
-                "org",
-                outputfile=of,
-                extra_args=[
-                    "--pdf-engine=xelatex",
-                    # TODO: Add an option to set the documentclass
-                    "-V",
-                    "documentclass=report",
-                    "-V",
-                    "block-headings",
-                    "--toc",
-                    "-N",
-                    "-V",
-                    "geometry:top=2.5cm, bottom=2.5cm, left=4cm, right=4cm",
-                    "-H",
-                    fp.name,
-                ],
-            )
+            try:
+                pypandoc.convert_text(
+                    input_content,
+                    "pdf",
+                    "org",
+                    outputfile=of,
+                    extra_args=[
+                        "--pdf-engine=xelatex",
+                        # TODO: Add an option to set the documentclass
+                        "-V",
+                        "documentclass=report",
+                        "-V",
+                        "block-headings",
+                        "--toc",
+                        "-N",
+                        "-V",
+                        "geometry:top=2.5cm, bottom=2.5cm, left=4cm, right=4cm",
+                        "-H",
+                        fp.name,
+                    ],
+                )
+            except RuntimeError as e:
+                error_text = bytes(str(e), "utf-8").decode("unicode_escape")
+                log.error(f"Failed to compile pdf:\n{error_text}")
+                sys.exit(1)
             log.info("PDF created")
 
         # Restore the old working directory
