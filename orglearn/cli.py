@@ -181,6 +181,8 @@ def pdf(org_files: typing.Tuple[str], heading_level: int, exit_after_preprocessi
             input_content += "\n"
             input_content += "#+OPTIONS: tags:nil"
             input_content += "\n"
+            input_content += "#+OPTIONS: ^:nil"
+            input_content += "\n"
 
             if heading_level:
                 input_content += "#+OPTIONS: H:{}".format(heading_level)
