@@ -10,6 +10,8 @@ import orgparse
 
 log = logging.getLogger(__name__)
 
+block_begin = re.compile(r"#\+BEGIN_(?P<block>[A-Z]+)( \w*)?")
+block_end = re.compile(r"#\+END_(?P<block>[A-Z]+)")
 latex_eq = re.compile(r"\$\$?(.*?)\$\$?")
 image_struct = re.compile(r"\[\[(.*?)\]\]")
 
@@ -155,6 +157,12 @@ class NodeConvertor:
 
             # LaTeX
             line = latex_eq.sub(r"[$]\1[/$]", line)
+
+            # Block begin
+            line = block_begin.sub(r"<pre><code>", line)
+
+            # Block end
+            line = block_end.sub(r"</code></pre>", line)
 
             # Images
             match = image_struct.match(line)

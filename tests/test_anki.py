@@ -101,3 +101,39 @@ def test_math(tmp_path, data_folder):
 
         for (title, body) in expected_cards:
             assert any(title == note.fields[0] and body == note.fields[1] for note in notes)
+
+
+def test_code(tmp_path, data_folder):
+    # Initalize convertor
+    c = AnkiConvertor(exclude_empty=True)
+
+    # Convert
+    org_file = data_folder / "anki_blocks.org"
+    out_file = tmp_path / "anki_blocks.apkg"
+    c.convert(str(org_file), str(out_file))
+
+    # Open the anki deck
+    with open_apkg(str(out_file)) as col:
+
+        notes = list(notes_iterator(col))
+
+        expected_cards = [
+            ("Generic", "<pre><code><br />|+|<br />   -><br />   <-<br /></code></pre>"),
+            (
+                "Python",
+                "<br /><pre><code><br />if __name__ == '__main__':<br />    print('Hello, world')<br /></code></pre><br />",
+            ),
+            (
+                "Quote",
+                "<br /><pre><code><br />Supreme excellence consists of breaking the enemy's resistance without fighting.<br /></code></pre>",
+            ),
+            (
+                "Example",
+                "<br /><pre><code><br />  table |asd|asd|<br /></code></pre>",
+            ),
+        ]
+
+        assert len(expected_cards) == len(notes)
+
+        for (title, body) in expected_cards:
+            assert any(title == note.fields[0] and body == note.fields[1] for note in notes)

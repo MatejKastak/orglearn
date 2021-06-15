@@ -1,0 +1,23 @@
+* Generic
+#+BEGIN_SRC
+|+|
+   ->
+   <-
+#+END_SRC
+* Python
+
+#+BEGIN_SRC python
+if __name__ == '__main__':
+    print('Hello, world')
+#+END_SRC
+
+* Quote
+
+#+BEGIN_QUOTE
+Supreme excellence consists of breaking the enemy's resistance without fighting.
+#+END_QUOTE
+* Example
+
+#+BEGIN_EXAMPLE
+  table |asd|asd|
+#+END_EXAMPLE
