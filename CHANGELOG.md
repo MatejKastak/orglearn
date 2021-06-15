@@ -2,6 +2,12 @@
 
 This file mentions all notable changes to orglearn project.
 
+# 1.1.3 (2021-06-15)
+
+* Fix: Properly set the heading level for included nodes
+* Add: Disable _ and ^ automatic formatting in text
+* Add: Code and other blocks are not formatted better
+
 # 1.1.2 (2021-06-10)
 
 * Add: Print pandoc failure exception
