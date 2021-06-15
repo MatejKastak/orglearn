@@ -80,7 +80,7 @@ class Preprocessor:
             m = self.REGEXP_COMMAND.search(line)
 
             if m:
-                next_level = len(m.group("stars")) + 1
+                level = len(m.group("stars"))
                 command = m.group("command")
 
                 parts = m.group("args").split("@")
@@ -104,7 +104,7 @@ class Preprocessor:
 
                     res += self._process_body(node._lines[1:])
                     for child in node.children:
-                        res += self._include_node(next_level, child)
+                        res += self._include_node(level + 1, child)
                 elif command == "OI":
 
                     node = self._find_node_in_tree(include_title, include_org_file)
@@ -114,7 +114,7 @@ class Preprocessor:
 
                     res += self._process_body(node._lines[1:])
                     for child in node.children:
-                        res += self._include_node(next_level, child)
+                        res += self._include_node(level, child)
                 elif command == "OIS":
 
                     node = self._find_node_in_tree(include_title, include_org_file)
