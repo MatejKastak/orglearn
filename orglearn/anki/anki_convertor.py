@@ -123,5 +123,5 @@ class AnkiConvertor:
     ) -> None:
         converted_node = self.node_convertor.convert(node, self.convert_mode)
         if converted_node:
-            log.info(f"Adding node '{node.heading}'")
+            log.info(f"Adding node '{node.heading}' with tags '{node.tags}'")
             output_list.append(converted_node)

@@ -102,7 +102,11 @@ class NodeConvertor:
         card_body = card_body.replace("\n", "<br />")
         card_title = self._get_card_title(node)
         if generate:
-            return genanki.Note(model=self.MODEL_NORMAL, fields=[card_title, card_body])
+            return genanki.Note(
+                model=self.MODEL_NORMAL,
+                fields=[card_title, card_body],
+                tags=self.get_tags_from_node(node),
+            )
 
         return None
 
@@ -133,9 +137,17 @@ class NodeConvertor:
         solution = solution.replace("\n", "<br />")
         card_title = self._get_card_title(node)
         if generate:
-            return genanki.Note(model=self.MODEL_CODE, fields=[card_title, assignment, solution])
+            return genanki.Note(
+                model=self.MODEL_CODE,
+                fields=[card_title, assignment, solution],
+                tags=self.get_tags_from_node(node),
+            )
 
         return None
+
+    def get_tags_from_node(self, node: orgparse.node.OrgNode) -> typing.List[str]:
+        """Extract the list of tags from ORG."""
+        return list(node.shallow_tags)
 
     def _append_anki_list_footer(self, node: orgparse.node.OrgNode, body: str) -> str:
         """Generate footer for the nodes marked with :anki_list:.
