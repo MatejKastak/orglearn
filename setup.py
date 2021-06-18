@@ -21,7 +21,7 @@ development = ["pytest==6.2.4", "black==19.10b0", "pre-commit==2.0.1", "ipdb==0.
 
 setup(
     name="orglearn",
-    version="1.1.4",  # TODO: Better way to handle versions
+    version="1.1.5",  # TODO: Better way to handle versions
     author="Matej Kastak",
     author_email="matej.kastak@gmail.com",
     description="Tool to learn from your org-mode notes",

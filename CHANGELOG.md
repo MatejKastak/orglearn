@@ -2,6 +2,10 @@
 
 This file mentions all notable changes to orglearn project.
 
+# 1.1.5 (2021-06-18)
+
+* Add: Anki preprocess tables to monospace
+
 # 1.1.4 (2021-06-18)
 
 * Add: Propagate shallow tags to anki notes
