@@ -2,6 +2,10 @@
 
 This file mentions all notable changes to orglearn project.
 
+# 1.1.4 (2021-06-18)
+
+* Add: Propagate shallow tags to anki notes
+
 # 1.1.3 (2021-06-15)
 
 * Fix: Properly set the heading level for included nodes
