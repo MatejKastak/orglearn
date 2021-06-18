@@ -14,6 +14,7 @@ block_begin = re.compile(r"#\+BEGIN_(?P<block>[A-Z]+)( \w*)?")
 block_end = re.compile(r"#\+END_(?P<block>[A-Z]+)")
 latex_eq = re.compile(r"\$\$?(.*?)\$\$?")
 image_struct = re.compile(r"\[\[(.*?)\]\]")
+table = re.compile(r"^\|.*\|$")
 
 
 class AnkiConvertMode(enum.Enum):
@@ -175,6 +176,11 @@ class NodeConvertor:
 
             # Block end
             line = block_end.sub(r"</code></pre>", line)
+
+            # Tables
+            match = table.match(line)
+            if match:
+                line = f"<pre><code>{line}</code></pre>"
 
             # Images
             match = image_struct.match(line)
