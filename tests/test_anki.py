@@ -118,7 +118,7 @@ def test_code(tmp_path, data_folder):
         notes = list(notes_iterator(col))
 
         expected_cards = [
-            ("Generic", "<pre><code><br />|+|<br />   -><br />   <-<br /></code></pre>"),
+            ("Generic", "<pre><code><br />   |+|<br />   --><br />   <--<br /></code></pre>"),
             (
                 "Python",
                 "<br /><pre><code><br />if __name__ == '__main__':<br />    print('Hello, world')<br /></code></pre><br />",

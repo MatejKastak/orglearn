@@ -1,8 +1,8 @@
 * Generic
 #+BEGIN_SRC
-|+|
-   ->
-   <-
+   |+|
+   -->
+   <--
 #+END_SRC
 * Python
 
