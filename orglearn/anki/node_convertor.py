@@ -8,6 +8,8 @@ import typing
 import genanki
 import orgparse
 
+import orglearn.utils as utils
+
 log = logging.getLogger(__name__)
 
 block_begin = re.compile(r"#\+BEGIN_(?P<block>[A-Z]+)( \w*)?")
@@ -58,24 +60,21 @@ class NodeConvertor:
         css=".card {text-align: left;}",
     )
 
-    def __init__(self) -> None:
+    def __init__(self, node_name_tag: bool = False) -> None:
         self._mode_convertors = {
             AnkiConvertMode.NORMAL: self._convert_normal,
             AnkiConvertMode.BRIEF: self._convert_brief,
             AnkiConvertMode.CODE: self._convert_code,
         }
 
+        self.node_name_tag = node_name_tag
         self.media_files: typing.List[str] = []
 
     def _get_card_title(self, node: orgparse.node.OrgNode) -> str:
         """Construct the node title."""
         res = node.heading
-        while 1:
-            try:
-                node = node.parent
-                res = f"{node.heading} -> {res}"
-            except AttributeError:
-                return res
+        for parent in utils.node_parents(node):
+            res = f"{parent.heading} -> {res}"
         return res
 
     def convert(
@@ -148,7 +147,12 @@ class NodeConvertor:
 
     def get_tags_from_node(self, node: orgparse.node.OrgNode) -> typing.List[str]:
         """Extract the list of tags from ORG."""
-        return list(node.shallow_tags)
+        res = list(node.shallow_tags)
+        res.append(node.heading.replace(" ", "_"))
+        if self.node_name_tag:
+            for parent in utils.node_parents(node):
+                res.append(parent.heading.replace(" ", "_"))
+        return res
 
     def _append_anki_list_footer(self, node: orgparse.node.OrgNode, body: str) -> str:
         """Generate footer for the nodes marked with :anki_list:.

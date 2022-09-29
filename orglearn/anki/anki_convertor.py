@@ -28,12 +28,13 @@ class AnkiConvertor:
         self.ignore_shallow_tags = set(kwargs.pop("ignore_shallow_tags_list", {}))
         self._convert_mode = kwargs.pop("convert_mode", None)
         self.user_supplied_convert_mode = bool(self._convert_mode)
+        self.node_name_tag = kwargs.pop("node_name_tag", False)
 
         if kwargs:
             # If we have unused options raise an exception
             ValueError(f"Unknown kwargs '{kwargs}'")
 
-        self.node_convertor = NodeConvertor()
+        self.node_convertor = NodeConvertor(self.node_name_tag)
         self.preprocessor = Preprocessor()
 
     def convert(self, in_file_str: str, out_file_str: str = None) -> None:

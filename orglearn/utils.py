@@ -6,6 +6,7 @@ import sys
 import tempfile
 import typing
 
+import orgparse
 from anki.collection import Collection
 
 
@@ -39,6 +40,18 @@ def create_empty_anki_collection() -> typing.Iterator[Collection]:
     yield col
 
     col.close(downgrade=False)
+
+
+def node_parents(node: orgparse.node.OrgNode) -> typing.Iterator[orgparse.node.OrgNode]:
+    """"Generator that yields parents of a node."""
+    while True:
+        try:
+            node = node.parent
+            if isinstance(node, orgparse.node.OrgRootNode):
+                return
+        except AttributeError:
+            return
+        yield node
 
 
 def setup_loggging(log_level: int) -> None:

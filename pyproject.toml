@@ -1,0 +1,27 @@
+# Python project configuration for black
+
+[tool.black]
+line-length = 100
+target-version = ['py36', 'py37', 'py38']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | env
+  | venv
+)/
+'''
+
+[flake8]
+# exclude = build,.git,.tox,./tests/.env
+# ignore = W504,W601
+max-line-length = 100

@@ -95,13 +95,20 @@ class Preprocessor:
                 self.current_file = include_path
 
                 if command == "OL":
-                    res += line
-
                     node = self._find_node_in_tree(include_title, include_org_file)
                     if node is None:
                         self._abort_preprocessing(include_title, line_num)
                         return ""
 
+                    # Include tags of the linked heading
+                    if node.shallow_tags:
+                        tags = ":".join(node.shallow_tags)
+                        line = line.strip()
+                        res += f"{line} :{tags}:\n"
+                    else:
+                        res += line
+
+                    # res += line
                     res += self._process_body(node._lines[1:])
                     for child in node.children:
                         res += self._include_node(level + 1, child)
